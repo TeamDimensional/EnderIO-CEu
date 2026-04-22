@@ -1,12 +1,5 @@
-repositories {
-  maven {
-    name 'DVS1 Maven FS'
-    url 'http://dvs1.progwml6.com/files/maven'
-  }
-}
+apply from: "../gradle/scripts/applyrfg.gradle"
 
 dependencies {
-  compile project(":enderio-base")
-  deobfCompile "slimeknights.mantle:Mantle:${mantle_version}"
-  deobfCompile "slimeknights:TConstruct:${tic_version}"
+  compileOnly project(":enderio-base")
 }

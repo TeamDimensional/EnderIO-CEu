@@ -1,6 +1,5 @@
-repositories {
-}
+apply from: "../gradle/scripts/applyrfg.gradle"
 
 dependencies {
-  compile project(":enderio-base")
+  compileOnly project(":enderio-base")
 }

@@ -1,5 +1,5 @@
+apply from: "../gradle/scripts/applyrfg.gradle"
+
 dependencies {
-	compile project(":enderio-base")
-	
-	compile "com.feed_the_beast.mods:FTBLib:${ftbl_version}"
+	compileOnly project(":enderio-base")
 }

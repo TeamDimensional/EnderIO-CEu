@@ -1,0 +1,80 @@
+// This file exists so that changing the dev env dependencies does not recompile all the modules (which takes around a minute and is annoying to wait for).
+
+apply from: "gradle/scripts/dependencies.gradle"
+
+def enabledDependencies = [
+  // Dev Env stuff
+  "jei": true,
+  "top": true,
+  "waila": false,
+  "aa": false,
+  // Modules
+  "machines": true,
+  "conduits": true,
+  "invpanel": true,
+  "endergy": true,
+  "zoo": false,
+  // Integration
+  "thaumcraft": false,
+  "opencomputers": false,
+  "forestry": false,
+  "rs": false,
+  "mekanism": false,
+  "ae2": false,
+  "tconstruct": false,
+  "cofh_core": false,
+  "ftblib": false,
+  "ctm": false,
+  "project_intelligence": false,
+]
+
+def shouldUse(deps, value) {
+  switch(value) {
+    case Boolean:
+      return value
+    case String:
+      if (!deps.containsKey(value)) {
+        throw new RuntimeException("Unknown mod switch: " + value)
+      }
+      return deps[value]
+    case Map:
+      if (value.containsKey("and") && value.containsKey("or")) {
+        throw new RuntimeException("Value ${value} contains both an AND and an OR")
+      } else if (value.containsKey("and")) {
+        return !value["and"].any { !shouldUse(deps, it) }
+      } else if (value.containsKey("or")) {
+        return value["or"].any { shouldUse(deps, it) }
+      } else {
+        throw new RuntimeException("Invalid map ${value}")
+      }
+    case _:
+      throw new RuntimeException("Invalid expression ${value}")
+  }
+}
+
+dependencies {
+  // Include StripLatestForgeRequirements by default for the dev env, saves everyone a hassle
+  runtimeOnly 'com.cleanroommc:strip-latest-forge-requirements:1.0'
+  // Include OSXNarratorBlocker by default for the dev env, for M1+ Macs
+  runtimeOnly 'com.cleanroommc:osxnarratorblocker:1.0'
+
+  runtime_only_dependencies.entrySet().forEach {
+    if (shouldUse(enabledDependencies, it.value)) {
+      runtimeOnly it.key
+    }
+  } 
+  compile_dependencies.entrySet().forEach {
+    if (shouldUse(enabledDependencies, it.value)) {
+      runtimeOnly it.key
+    }
+  } 
+  implementation project(":endercore")
+  
+  loaded_modules.entrySet().forEach {
+    if (shouldUse(enabledDependencies, it.value)) {
+      implementation project(":enderio-${it.key}")
+    }
+  }
+
+}
+

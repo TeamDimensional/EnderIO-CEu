@@ -1,23 +1,6 @@
-def localAutoConfig = project.hasProperty('use_local_auto_config') && project.getProperty('use_local_auto_config').equalsIgnoreCase('true')
+apply from: "../gradle/scripts/applyrfg.gradle"
 
 dependencies {
-	deobfCompile "mezz.jei:jei_${minecraft_version}:${jei_version}"
-	deobfCompile "net.sengir.forestry:forestry_${minecraft_version}:${forestry_version}:api"
-	deobfCompile "team.chisel.ctm:CTM:${ctm_version}:api"
-	deobfCompile("cofh:CoFHCore:${cofhcore_version}:universal") {
-		transitive = false // We don't need RF nor JEI, thank you very much
-	}
-	
-	compile("mcjty.theoneprobe:TheOneProbe-1.12:${top_version}:api") {
-		transitive = false // Why does TOP API pull in RF? The world may never know...
-	}
-	compile "com.mod-buildcraft:buildcraft-api:${buildcraft_version}"
-	
-	compile "info.loenwind.autosave:AutoSave:${minecraft_version}-${autosave_version}"
-	embed "info.loenwind.autosave:AutoSave:${minecraft_version}-${autosave_version}"
-	
-	if (!localAutoConfig || gradle.startParameter.taskNames.contains("runClient")) {
-    	compile "info.loenwind.autoconfig:AutoConfig:${minecraft_version}-${autoconfig_version}"
-    	embed "info.loenwind.autoconfig:AutoConfig:${minecraft_version}-${autoconfig_version}"
-  	}
+  // shadeTransitively 'info.loenwind.autoconfig:AutoConfig:1.12.2-1.0.2'
+  // shadeTransitively 'info.loenwind.autosave:AutoSave:1.12.2-1.0.11'
 }

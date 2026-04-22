@@ -1,0 +1,149 @@
+apply from: file("$rootDir/gradle/scripts/helpers.gradle")
+
+repositories {
+    // Other repositories described by default:
+    // CleanroomMC: https://maven.cleanroommc.com
+    mavenCentral()
+    maven {
+        name 'CleanroomMC Maven'
+            url 'https://maven.cleanroommc.com'
+        }
+        maven { url = "https://modmaven.dev/" }
+        exclusiveContent {
+            forRepository {
+                maven {
+                    name = 'CurseMaven'
+                url = 'https://cursemaven.com'
+            }
+        }
+        filter {
+            includeGroup 'curse.maven'
+        }
+    }
+    exclusiveContent {
+        forRepository {
+        maven {
+                name = 'Modrinth'
+                url = 'https://api.modrinth.com/maven'
+            }
+        }
+        filter {
+            includeGroup 'maven.modrinth'
+        }
+    }
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "buildcraft"
+                url = "https://mod-buildcraft.com/maven"
+            }
+        }
+        filter {
+            includeGroup "com.mod-buildcraft"
+        }
+    }
+    mavenLocal() // Must be last for caching to work
+}
+
+ext {
+    compile_dependencies = [
+        'com.mod-buildcraft:buildcraft-api:7.99.17': true,    // compile-time + runtime dependency, API
+        'curse.maven:had-enough-items-557549:6825777': "jei",
+        'curse.maven:thaumcraft-223628:2629023': "thaumcraft",
+        'curse.maven:opencomputers-223008:6608365': "opencomputers",
+        'curse.maven:forestry-59751:7398359': "forestry",
+        'curse.maven:refined-storage-243076:2940914': "rs",
+        'curse.maven:mekanism-268560:2835175': "mekanism",
+        'curse.maven:ae2-extended-life-570458:6302098': "ae2",
+        'curse.maven:tinkers-antique-1242239:7339332': "tconstruct",
+        'curse.maven:the-one-probe-community-edition-885670:7718301': "top",
+        'curse.maven:cofh-core-69162:2920433': "cofh_core",
+        'curse.maven:ftb-library-legacy-forge-237167:2985811': "ftblib",
+        'curse.maven:bubbles-a-baubles-fork-995393:7736064': "thaumcraft",
+        'curse.maven:mantle-74924:2713386': "tconstruct",
+        'curse.maven:ctm-267602:2915363': "ctm",
+        'curse.maven:project-intelligence-306028:2833640': "project_intelligence",
+        'curse.maven:brandons-core-231382:7130990': "project_intelligence",
+        'curse.maven:codechicken-lib-1-8-242818:2779848': "project_intelligence",
+        'curse.maven:redstone-flux-270789:2920436': "project_intelligence",
+    ]
+
+    runtime_only_dependencies = [
+        'curse.maven:hwyla-253449:2568751': "waila",
+        'curse.maven:actually-additions-228404:3117927': "aa",
+    ]
+
+    loaded_modules = [
+        'base': true,
+        'conduits': "conduits",
+        'conduits-appliedenergistics': ['and': ["conduits", "ae2"]],
+        'conduits-mekanism': ['and': ["conduits", "mekanism"]],
+        'conduits-opencomputers': ['and': ["conduits", "opencomputers"]],
+        'conduits-refinedstorage': ['and': ["conduits", "rs"]],
+        'endergy': "endergy",
+        'integration-forestry': "forestry",
+        'integration-thaumcraft': "thaumcraft",
+        'integration-tic': "tconstruct",
+        'invpanel': "invpanel",
+        'machines': "machines",
+        'zoo': "zoo",
+    ]
+}
+
+dependencies {
+    // Shaded libs
+    implementation 'info.loenwind.autoconfig:AutoConfig:1.12.2-1.0.2'
+    implementation 'info.loenwind.autosave:AutoSave:1.12.2-1.0.11'
+
+    // Example - Dependency descriptor:
+    // 'com.google.code.gson:gson:2.8.6' << group: com.google.code.gson, name:gson, version:2.8.6
+    // 'group:name:version:classifier' where classifier is optional
+
+    // Example - Deobfuscating dependencies:
+    // rfg.deobf('curse.maven:had-enough-items-557549:4543375')
+    // By wrapping a dependency descriptor in rfg.deobf() method call, the dependency is queued for deobfuscation
+    // When deobfuscating, RFG respects the mapping_channel + mapping_version stated in gradle.properties
+
+    // Example - CurseMaven dependencies:
+    // 'curse.maven:had-enough-items-557549:4543375' << had-enough-items = project slug, 557549 = project id, 4543375 = file id
+    // Full documentation: https://cursemaven.com/
+
+    // Example - Modrinth dependencies:
+    // 'maven.modrinth:jei:4.16.1.1000' << jei = project name, 4.16.1.1000 = file version
+    // Full documentation: https://docs.modrinth.com/docs/tutorials/maven/
+
+    // Common dependency types (configuration):
+    // implementation = dependency available at both compile time and runtime
+    // runtimeOnly = runtime dependency
+    // compileOnly = compile time dependency
+    // annotationProcessor = annotation processing dependencies
+    // embed = bundle dependencies into final output artifact (no relocation)
+
+    // Transitive dependencies:
+    // (Dependencies that your dependency depends on)
+    // If you wish to exclude transitive dependencies in the described dependencies
+    // Use a closure as such:
+    // implementation ('com.google.code.gson:gson:2.8.6') {
+    //     transitive = false
+    // }
+
+    compile_dependencies.entrySet().forEach {
+        compileOnly it.key
+    }
+    // See runtimeConfig.gradle
+    /* runtime_only_dependencies.entrySet().forEach {
+        if (it.value.any { it.toBoolean() }) {
+            runtimeOnly it.key
+        }
+    } */
+
+    if (project.name != 'ap' && project.name != 'endercore') {
+        annotationProcessor project(':ap')
+        implementation project(':ap')
+    }
+
+    // Add EnderCore so we do not need to add it into every module
+    if (project.name != 'endercore') {
+        implementation project(':endercore')
+    }
+}

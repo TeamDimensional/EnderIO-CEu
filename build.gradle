@@ -1,645 +1,314 @@
-buildscript {
-    repositories {
-        jcenter()
-        mavenCentral()
-        maven {
-            name = "forge"
-            url = "http://files.minecraftforge.net/maven"
-        }
-        maven {
-            url "https://plugins.gradle.org/m2/"
-        }
-    }
-    dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-        classpath "gradle.plugin.net.intellisun:modDependencies:1.0.1-alpha.2" // https://github.com/IntelliSun-MC/modDependencies
-        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.3'
-        classpath "com.vladsch.flexmark:flexmark:0.34.52"
-        classpath "com.vladsch.flexmark:flexmark-pdf-converter:0.34.52"
-    }
-}
+/**
+ * It is advised that you do not edit anything in the build.gradle; unless you are sure of what you are doing
+ */
+import com.gtnewhorizons.retrofuturagradle.mcp.InjectTagsTask
+import org.jetbrains.changelog.Changelog
+import org.jetbrains.gradle.ext.Gradle
 
 plugins {
-    id 'com.matthewprenger.cursegradle' version "1.1.0"
-    id "com.dorongold.task-tree" version "1.3"
-    id "net.ltgt.apt-eclipse" version "0.18"
+    id 'java'
+    id 'java-library'
+    id 'maven-publish'
+    id 'org.jetbrains.gradle.plugin.idea-ext' version '1.3'
+    id 'com.gtnewhorizons.retrofuturagradle' version '2.0.2'
+    id 'com.matthewprenger.cursegradle' version '1.4.0' apply false
+    id 'com.modrinth.minotaur' version '2.+' apply false
+    id 'org.jetbrains.changelog' version '2.5.0'
 }
 
-apply plugin: 'eclipse'
+apply from: 'gradle/scripts/helpers.gradle'
 
-// We use these to mess with the eclipse .classpath file
-import org.gradle.plugins.ide.eclipse.model.AbstractClasspathEntry
-import org.gradle.plugins.ide.eclipse.model.ProjectDependency
+// Early Assertions
+assertProperty 'mod_version'
+assertProperty 'root_package'
+assertProperty 'mod_id'
+assertProperty 'mod_name'
 
-// More user properties
-ext.user = parseConfig(file('user.properties'))
-if (ext.user != null) {
-    ext.user.each { k, v ->
-        project.ext.set(k, v)
+assertSubProperties 'use_tags', 'tag_class_name'
+assertSubProperties 'use_access_transformer', 'access_transformer_locations'
+assertSubProperties 'use_mixins', 'mixin_booter_version', 'mixin_refmap'
+assertSubProperties 'is_coremod', 'coremod_includes_mod', 'coremod_plugin_class_name'
+assertSubProperties 'use_asset_mover', 'asset_mover_version'
+
+setDefaultProperty 'use_modern_java_syntax', false, false
+setDefaultProperty 'generate_sources_jar', true, false
+setDefaultProperty 'generate_javadocs_jar', true, false
+setDefaultProperty 'mapping_channel', true, 'stable'
+setDefaultProperty 'mapping_version', true, '39'
+setDefaultProperty 'use_dependency_at_files', true, true
+setDefaultProperty 'minecraft_username', true, 'Developer'
+setDefaultProperty 'extra_jvm_args', false, ''
+setDefaultProperty 'extra_tweak_classes', false, ''
+setDefaultProperty 'change_minecraft_sources', false, false
+
+version = propertyString('mod_version')
+group = propertyString('root_package')
+
+base {
+    archivesName.set(propertyString('mod_id'))
+}
+
+apply from: "gradle/scripts/applyrfg.gradle"
+apply from: "gradle/scripts/runtimeConfig.gradle"
+
+configurations {
+    embed
+    implementation.extendsFrom(embed)
+}
+
+dependencies {
+    if (propertyBool('use_modern_java_syntax')) {
+        annotationProcessor 'com.github.bsideup.jabel:jabel-javac-plugin:1.0.0'
+        // Workaround for https://github.com/bsideup/jabel/issues/174
+        annotationProcessor 'net.java.dev.jna:jna-platform:5.13.0'
+        compileOnly ('com.github.bsideup.jabel:jabel-javac-plugin:1.0.0') {
+            transitive = false
+        }
+        // Allow jdk.unsupported classes like sun.misc.Unsafe, workaround for JDK-8206937 and fixes crashes in tests
+        patchedMinecraft 'me.eigenraven.java8unsupported:java-8-unsupported-shim:1.0.0'
+        // Include for tests
+        testAnnotationProcessor 'com.github.bsideup.jabel:jabel-javac-plugin:1.0.0'
+        testCompileOnly('com.github.bsideup.jabel:jabel-javac-plugin:1.0.0') {
+            transitive = false // We only care about the 1 annotation class
+        }
+    }
+    if (propertyBool('use_asset_mover')) {
+        implementation "com.cleanroommc:assetmover:${propertyString('asset_mover_version')}"
+    }
+    if (propertyBool('use_mixins')) {
+        String mixin = modUtils.enableMixins("zone.rong:mixinbooter:${propertyString('mixin_booter_version')}", propertyString('mixin_refmap'))
+        api (mixin) {
+            transitive = false
+        }
+        annotationProcessor 'org.ow2.asm:asm-debug-all:5.2'
+        annotationProcessor 'com.google.guava:guava:32.1.2-jre'
+        annotationProcessor 'com.google.code.gson:gson:2.8.9'
+        annotationProcessor (mixin) {
+            transitive = false
+        }
+    }
+    if (propertyBool('enable_junit_testing')) {
+        testImplementation 'org.junit.jupiter:junit-jupiter:5.7.1'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     }
 }
 
-def release = System.getenv("RELEASE") != null &&
-              !System.getenv("RELEASE").equalsIgnoreCase("false")
-
-// Configure all projects
-allprojects {
-    apply plugin: 'net.minecraftforge.gradle.forge'
-    apply plugin: 'net.intellisun.moddependencies'
-    apply plugin: 'org.junit.platform.gradle.plugin'
-    apply plugin: 'net.ltgt.apt-eclipse'
-
-    // Import mod dependencies and execute
-    if (file('dependencies.gradle').exists())
-        apply from: 'dependencies.gradle'
-
-    group = 'com.enderio'
-    version = getVersionString(project)
-    archivesBaseName = getArchiveBaseName(project)
-
-    // Configure minecraft pipline
-    minecraft {
-        version = "${minecraft_version}-${forge_version}"
-        mappings = mcp_mappings
-        runDir = "run"
-
-        // Replace the version string in source
-        replace '@VERSION@', project.version
-
-        // If the module defines `dependencyString` use it
-        if (project.hasProperty('dependencyString'))
-            replace 'DEFAULT_DEPENDENCIES;', "\"${dependencyString}\";"
+// Adds Access Transformer files to tasks
+if (propertyBool('use_access_transformer')) {
+    for (def location : propertyStringList('access_transformer_locations')) {
+        def fileLocation = file("${projectDir}/src/main/resources/${location}")
+        if (fileLocation.exists()) {
+            tasks.deobfuscateMergedJarToSrg.accessTransformerFiles.from(fileLocation)
+            tasks.srgifyBinpatchedJar.accessTransformerFiles.from(fileLocation)
+        } else {
+            throw new GradleException("Access Transformer file [$fileLocation] does not exist!")
+        }
     }
+}
 
-    // The is very temporary, currently not all modules compile
-    // This will exclude all non compiling modules from CI but
-    // they will still appear is IDEs.
-    // TODO: Remove this once all modules compile
-    if (!project.hasProperty('include_in_build'))
-         project.ext.include_in_build = true
-    else
-        project.ext.include_in_build = project.include_in_build != 'false'
+processResources {
 
-    if (!project.hasProperty('include_in_combjar'))
-         project.ext.include_in_combjar = true
-    else
-        project.ext.include_in_combjar = project.include_in_combjar != 'false'
+    inputs.property 'mod_id', propertyString('mod_id')
+    inputs.property 'mod_name', propertyString('mod_name')
+    inputs.property 'mod_version', propertyString('mod_version')
+    inputs.property 'mod_description', propertyString('mod_description')
+    inputs.property 'mod_authors', "${propertyStringList('mod_authors', ',').join(', ')}"
+    inputs.property 'mod_credits', propertyString('mod_credits')
+    inputs.property 'mod_url', propertyString('mod_url')
+    inputs.property 'mod_update_json', propertyString('mod_update_json')
+    inputs.property 'mod_logo_path', propertyString('mod_logo_path')
+    inputs.property 'mixin_refmap', propertyString('mixin_refmap')
+    inputs.property 'mixin_package', propertyString('mixin_package')
+    inputs.property 'mixin_configs', propertyStringList('mixin_configs').join(' ')
 
-    if (!project.hasProperty('publish_api'))
-         project.ext.publish_api = true
-    else
-        project.ext.publish_api = project.publish_api != 'false'
+    def filterList = ['mcmod.info', 'pack.mcmeta']
+    filterList.addAll(propertyStringList('mixin_configs').collect(config -> "mixins.${config}.json" as String))
 
-    project.ext.include_in_combjar = project.ext.include_in_combjar && project.ext.include_in_build
-
-    // Eclipse needs this for some reason
-    sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
-    compileJava {
-        sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
-    }
-
-    repositories {
-        mavenCentral()
-        //maven { url = "http://tehnut.info/maven" }
-        maven { url = "http://maven.tterrag.com" }
-        maven { url = "http://maven2.tterrag.com" }
-        maven { url = "http://dvs1.progwml6.com/files/maven" }
-        maven { url = "http://files.minecraftforge.net/maven" }
-        maven { url = "http://maven.cil.li/" } // OpenComputers
-        maven { url = "http://maven.ic2.player.to" }
-        maven { url = "https://maven.mcmoddev.com" } // ???, dead as of 2021-01-10, back as of 2021-05-24
-        //maven { url = "https://mmdmaven.blamejared.com" } // temp replacement for ^
-        maven { url = "https://maven.blamejared.com" } // temp replacement for ^
-        maven { url = "http://mod-buildcraft.com/maven/" }
-        maven { url = "https://maven.latmod.com" } // FTBLib
-        maven { url = "http://maven.covers1624.net/" } // CoFHCore
-        //maven { url = "http://cc.crzd.me/maven/" } // ComputerCraft, dead as of 2021-05-24
-        maven { url = "https://www.cursemaven.com" } // Mekanism
-        //maven { url = "https://repo.raoulvdberge.com/" } // Refined Storage (new)
-        //maven { url = "https://repo.refinedmods.com/" } // Refined Storage (double-plus new)
-        maven { url = "https://maven.hypherionmc.me/" } // our backups for vanished sources
-        // maven { url = "https://modmaven.dev/" } // appeng etc. but mostly 1.16 stuff
-        mavenLocal()
+    filesMatching(filterList) { fcd ->
+        fcd.expand(
+                'mod_id': propertyString('mod_id'),
+                'mod_name': propertyString('mod_name'),
+                'mod_version': propertyString('mod_version'),
+                'mod_description': propertyString('mod_description'),
+                'mod_authors': "${propertyStringList('mod_authors', ',').join(', ')}",
+                'mod_credits': propertyString('mod_credits'),
+                'mod_url': propertyString('mod_url'),
+                'mod_update_json': propertyString('mod_update_json'),
+                'mod_logo_path': propertyString('mod_logo_path'),
+                'mixin_refmap': propertyString('mixin_refmap'),
+                'mixin_package': propertyString('mixin_package')
+        )
     }
     
-    configurations {
-        // configuration that holds jars to embed inside the jar
-        embed
+    if (propertyBool('use_access_transformer')) {
+        rename '(.+_at.cfg)', 'META-INF/$1'
     }
-
-    junitPlatform {
-      platformVersion '1.0.3'
-      enableStandardTestTask true
-    }
-
-    def localEnderCore = project.hasProperty('use_local_ender_core') && project.getProperty('use_local_ender_core').equalsIgnoreCase('true')
-
-    // Common dependencies for all modules
-    dependencies {
-        // Remote / local endercore
-        if (!localEnderCore || gradle.startParameter.taskNames.contains("runClient")) {
-            deobfCompile "com.enderio.core:EnderCore:${endercore_version}"
-        }
-
-        // All jars in the '<module>/lib' directory
-        compile fileTree(dir: "lib", include: '*.jar')
-
-        // All jars in the '<root>/lib' directory
-        compile fileTree(dir: "${project.rootDir}/lib", include: '*.jar')
-
-        testImplementation     "org.junit.jupiter:junit-jupiter-api:5.2.0"
-        testCompile("org.junit.jupiter:junit-jupiter-api:5.2.0")
-        testCompile("org.junit.platform:junit-platform-launcher:1.1.0")
-        testRuntime("org.junit.jupiter:junit-jupiter-engine:5.2.0")
-
-        if (project.name != 'ap') {
-            annotationProcessor project(':ap')
-            compile project(':ap')
-        }
-    }
-
-    // Process resources to inject dynamic metadata
-    processResources {
-        // Rerun this step every time these change
-        inputs.property "version", project.version
-        inputs.property "mcversion", project.minecraft.version
-
-        // Inject version and mcversion to mod info
-        from(sourceSets.main.resources.srcDirs) {
-            include '**/*.info'
-            include '**/*.properties'
-
-            expand 'version': project.version, 'mcversion': project.minecraft.version
-        }
-
-        // Include everything else as is
-        from(sourceSets.main.resources.srcDirs) {
-            exclude '**/*.info'
-            exclude '**/*.properties'
-        }
-    }
-
-    // Java 8 throws errors about jdoc, ignore them
-    if (JavaVersion.current().isJava8Compatible()) {
-        tasks.withType(Javadoc) {
-            options.addStringOption('Xdoclint:none', '-quiet')
-        }
-    }
-
-    // Build the key store for jar signing
-    task mkKeyStore(type: Exec) {
-       workingDir projectDir
-       commandLine 'keytool', '-genkey', '-storetype', 'PKCS12', '-alias', 'signFiles', '-keystore', 'eiostore.jks', '-storepass', '123456', '-noprompt', '-dname', 'CN='+getCN(), '-keypass', '123456'
-    }
-
-	// Convert the core recipes to pdf so the users won't have editable recipe files in their
-	// config folder. Crude, but it prevents a common mistake. BTW, setting those files to
-	// read-only works in theory, but all common launchers fail to handle read-only files
-	// correctly.
-	processResources.doLast {
-		def resdir = new File(project.sourceSets.main.output.resourcesDir, "assets/enderio/config/recipes")
-		project.fileTree([dir: resdir, include: '*.xml']).files.each { file ->
-			def baseFilename = file.name.take(file.name.lastIndexOf('.'))
-			def inputFile  = new File(resdir, "${baseFilename}.xml")
-			def outputFile = new File(resdir, "${baseFilename}.pdf")
-			com.vladsch.flexmark.pdf.converter.PdfConverterExtension.exportToPdf(outputFile.path,
-				"<html><head></head><body><div style='white-space:pre-wrap; font-family:monospace;'>" +
-				groovy.xml.XmlUtil.escapeXml(inputFile.text) + 
-				"</div></body></html>", "", new com.vladsch.flexmark.util.options.MutableDataSet())
-		}
-	}
-
-    // Sign the jar with the new key store
-    task signJar(type: SignJar, dependsOn: reobfJar) {
-        inputFile = jar.archivePath
-        outputFile = jar.archivePath
-        keyStore = 'eiostore.jks'
-        alias = 'signFiles'
-        storePass = '123456'
-        keyPass = '123456'
-    }
-
-    // Cleanup the keystore
-    task rmKeyStorePre(type: Delete) {
-      delete 'eiostore.jks'
-    }
-
-    // Cleanup the keystore
-    task rmKeyStore(type: Delete) {
-      delete 'eiostore.jks'
-    }
-
-    build.dependsOn rmKeyStore
-    rmKeyStore.dependsOn signJar
-    signJar.dependsOn mkKeyStore
-    mkKeyStore.dependsOn rmKeyStorePre
-
-    eclipse {
-      classpath {
-        containers 'org.eclipse.buildship.core.gradleclasspathcontainer'
-        file {
-          whenMerged {
-            entries.each { e ->
-              if (e.path.contains('gradleclasspathcontainer') || e.path.contains('org.eclipse.jdt.launching.JRE_CONTAINER')) {
-                // Safety check that EC exists, otherwise we can't add this without breaking eclipse setup
-                e.entryAttributes['annotationpath'] = localEnderCore ? '/EnderCore/externalannotations' : null
-              }
-            }
-            if (localEnderCore) {
-              entries.add(new ProjectDependency("/EnderCore"))
-            }
-          }
-        }
-      }
-    }
-
-	// this needs to be here for cursegradle.addArtifact to be able to reference it
-	task recipeJar(type: Jar, dependsOn: jar) {
-	    classifier = 'recipes'
-	    extension = 'zip'
-	    enabled = rootProject == project
-	
-	    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-	}
-
-
-	// Note that subprojects inherit this ID, so check that it's not an inherited value if we don't want it to be published with the same ID as the
-	// top-level project. Which wouldn't work as it would generate duplicate tasks.
-    if (project.curse_projectId?.trim() && (rootProject == project || rootProject.curse_projectId != project.curse_projectId))
-        curseforge {
-            options {
-            	debug = !release
-            }
-            apiKey = project.hasProperty('curseforge_key') ? project.curseforge_key : ""
-
-            def build_number = System.getenv('BUILD_NUMBER') == null ? '0' : System.getenv('BUILD_NUMBER')
-            def changelog_content = System.getenv('CHANGELOG') != null && !System.getenv('CHANGELOG').equals('none') ? System.getenv('CHANGELOG') : ''
-
-            def changelog_text = getChangelogFormat()
-                .replaceAll('#BUILD#', build_number)
-                .replaceAll('#EXTRA#', changelog_content)
-
-            project {
-                id = project.curse_projectId
-                changelog = changelog_text
-                changelogType = 'html'
-                releaseType = 'release'
-
-                mainArtifact(jar) {
-                    String display_addon = project.hasProperty('curse_display_name') ? project.curse_display_name : "Ender IO";
-                    displayName = "${display_addon} - ${version}"
-                }
-				if (rootProject == project) {
-					addArtifact(recipeJar)
-				}
-
-                relations {
-                    if (project.hasProperty('curse_optional_libraries'))
-                        project.curse_optional_libraries.split(/,\s*/).findAll { it?.trim() }.each { slug -> optionalLibrary slug }
-                    if (project.hasProperty('curse_required_libraries'))
-                        project.curse_required_libraries.split(/,\s*/).findAll { it?.trim() }.each { slug -> requiredLibrary slug }
-                }
-
-                afterEvaluate {
-                	// no, addArtifact() will not work in here
-
-//     Work around https://github.com/matthewprenger/CurseGradle/issues/20
-//     TODO: This only works for the root project.
-                    gameVersionStrings.remove('Java 9')
-// (1) Work around cursegradle setting dependencies for the curseforgeXXX tasks to :subproject:jar and :reobfJar -> force :subproject:reobfJar instead.
-// (2) Depend on rmKeyStore instead of reobfJar so the signed jar is uploaded.
-// (3) It is very tricky to not run too early (before cursegradle creates the upload task), that's why this looks so convoluted...
-                    allprojects { p ->
-                        p.curseforge.curseProjects.findAll { it.uploadTask }.findAll { it.uploadTask.projectId == p.curse_projectId }.each { curseProject ->
-                            Task reobfTask = p.tasks.findByName('rmKeyStore')
-                            // println "Forcing dependency of ${curseProject.uploadTask} to ${reobfTask}"
-                            curseProject.uploadTask.dependsOn.clear()
-                            curseProject.uploadTask.dependsOn reobfTask
-                        }
-                    }
-                }
-            }
-        }
 
 }
 
-// Configuration that applies only to modules
-subprojects {
-
-    jar {
-        into('/META-INF/libraries') {
-            from configurations.embed
-        }
-
-        doFirst {
-            manifest {
-                def contained = configurations.embed.collect { it.getName() };
-                if (!contained.isEmpty()) {
-                    attributes([
-                        "ContainedDeps": contained.join(' ')
-                    ])
-                }
-            }
-        }
-    }
-
-    // Assembly an API jar
-    task apiJar(type: Jar) {
-    	enabled = project.ext.publish_api
-        classifier = 'api'
-
-        from sourceSets.main.output.classesDirs
-        include 'crazypants/enderio/api/**/*.class'
-        from sourceSets.main.java
-        include 'crazypants/enderio/api/**/*.java'
-    }
-
-    // Assemble a source jar
-    task sourcesJar(type: Jar) {
-    	enabled = false
-        classifier = 'sources'
-        from sourceSets.main.java
-    }
-}
-
-// Part of the temporary fix for not compiling modules
-def buildprojects = subprojects.findAll { sp -> sp.ext.include_in_build }
-def combjarprojects = subprojects.findAll { sp -> sp.ext.include_in_combjar }
-
-// Make sure all modules are configured
-buildprojects.each { subproject -> evaluationDependsOn( subproject.path ) }
-
-jar.doFirst {
-    // This code merge all resources that are duplicated across the modules.
-    // Since modules are shiped both as separate modules and as an 'all' jar
-    // some manifest files are duplicated.
-    File target = new File(project.sourceSets.main.output.resourcesDir, "assets/enderio/lang")
-    target.mkdirs()
-    combjarprojects.each { subproject ->
-        File langDir = new File(subproject.sourceSets.main.output.resourcesDir, 'assets/enderio/lang/')
-        if (langDir.exists()) {
-            langDir.eachFileMatch( ~".*\\.lang\$" ) { langfile ->
-                new File(target, langfile.name) << langfile.text << "\n"
-            }
-        }
-    }
-
-    def mcmod = ""
-    combjarprojects.each { subproject ->
-        mcmod += new File(subproject.sourceSets.main.output.resourcesDir, 'mcmod.info').text
-    }
-    new File(project.sourceSets.main.output.resourcesDir, "mcmod.info") << mcmod.replaceAll(/\]\s*\[/, ',')
-
-    def sound = ""
-    combjarprojects.each { subproject ->
-        File soundFile = new File(subproject.sourceSets.main.output.resourcesDir, 'assets/enderio/sounds.json')
-        if (soundFile.exists()) {
-            sound += soundFile.text
-        }
-    }
-    new File(project.sourceSets.main.output.resourcesDir, "assets/enderio/sounds.json") << sound.replaceAll(/\}\s*\{/, ',')
-
-    println "Created derived resources in ${target}"
-}
-
-// Collect all sources from the modules and merge them
-// into the all jar.
-jar.dependsOn combjarprojects.tasks['classes']
 jar {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    combjarprojects.each { subproject ->
-        from subproject.sourceSets.main.output.classesDirs
-        from subproject.sourceSets.main.output.resourcesDir
-
-        into('/META-INF/libraries') {
-            from subproject.configurations.embed
-        }
-    }
-    doFirst {
-        manifest {
-            attributes([
-                "ContainedDeps": combjarprojects.collect { it.configurations.embed.collect { it.getName() }}.flatten().join(' ')
-            ])
-        }
-    }
-}
-
-sourceJar {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    combjarprojects.each { subproject ->
-        from subproject.sourceSets.main.java
-    }
-}
-
-// recipeJar real content. must be here so it can use buildprojects
-buildprojects.each { subproject ->
-    recipeJar.from subproject.sourceSets.main.output.resourcesDir, {
-	    include 'assets/enderio/config/recipes/*.xml'
-	    include 'assets/enderio/config/recipes/*.xsd'
-    }
-}
-
-// Copy all the jars to `libs`
-task copyJars(type: Copy, dependsOn: subprojects.tasks['signJar']) {
-    from buildprojects.collect { it.tasks.withType(Jar) }
-    into "$buildDir/libs"
-}
-
-// Combine all the API jars into a single jar
-task combApiJar(type: Jar) {
-    dependsOn copyJars
-    classifier 'api'
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    combjarprojects.each { subproject ->
-    	if (subproject.apiJar.enabled)
-	   	    from zipTree(subproject.apiJar.getArchivePath()).asFileTree
-    }
-}
-
-artifacts {
-    archives combApiJar
-}
-
-build.dependsOn sourceJar, combApiJar, recipeJar
-
-eclipseFactorypath.dependsOn cleanEclipseFactorypath, eclipseJdtApt, eclipseJdt // workaround for gradle <5.4
-// gradle 5.4+:
-// eclipse.synchronizationTasks ap:build, cleanEclipseFactorypath, eclipseFactorypath, eclipseJdtApt, eclipseJdt
-
-
-apply plugin: 'maven-publish'
-
-publishing {
-    tasks.publish.dependsOn 'build'
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java                                //Define the properties of the publication
-            version minecraft_version + "-" + project.version
-            artifact sourceJar
-            artifact combApiJar
-            artifact recipeJar
-
-            pom.withXml { //Here we can add custom nodes to the pom file
-                def dependenciesNode = asNode().getAt("dependencies")[0]
-                if (dependenciesNode == null) {
-                    dependenciesNode = asNode().appendNode('dependencies')
+    manifest {
+        def attribute_map = [:]
+        if (propertyBool('is_coremod')) {
+            attribute_map['FMLCorePlugin'] = propertyString('coremod_plugin_class_name')
+            if (propertyBool('coremod_includes_mod')) {
+                attribute_map['FMLCorePluginContainsFMLMod'] = true
+                def currentTasks = gradle.startParameter.taskNames
+                if (currentTasks[0] == 'build' || currentTasks[0] == 'prepareObfModsFolder' || currentTasks[0] == 'runObfClient') {
+                    attribute_map['ForceLoadAsMod'] = true
                 }
+            }
+        }
+        if (propertyBool('use_access_transformer')) {
+            attribute_map['FMLAT'] = propertyString('access_transformer_locations')
+        }
+        attributes(attribute_map)
+    }
+    // Add all embedded dependencies into the jar
+    from(provider{ configurations.embed.collect {it.isDirectory() ? it : zipTree(it)} })
+}
 
-                //Iterate over the compile dependencies (we don't want the test ones), adding a <dependency> node for each
-                configurations.compile.allDependencies.each {
-                    if (!it.name.equals("unspecified")) { //filter out the garbage
-                        def dependencyNode = dependenciesNode.appendNode('dependency')
-                        dependencyNode.appendNode('groupId', it.group)
-                        dependencyNode.appendNode('artifactId', it.name)
-                        dependencyNode.appendNode('version', it.version)
-                    }
+idea {
+    module {
+        inheritOutputDirs = true
+    }
+    project {
+        settings {
+            runConfigurations {
+                "1. Run Client"(Gradle) {
+                    taskNames = ["runClient"]
+                }
+                "2. Run Server"(Gradle) {
+                    taskNames = ["runServer"]
+                }
+                "3. Run Obfuscated Client"(Gradle) {
+                    taskNames = ["runObfClient"]
+                }
+                "4. Run Obfuscated Server"(Gradle) {
+                    taskNames = ["runObfServer"]
+                }
+            }
+            compiler.javac {
+                afterEvaluate {
+                    javacAdditionalOptions = "-encoding utf8"
+                    moduleJavacAdditionalOptions = [
+                            (project.name + ".main"): tasks.compileJava.options.compilerArgs.collect { '"' + it + '"' }.join(' ')
+                    ]
                 }
             }
         }
     }
+}
 
-    repositories {
-    	if (project.hasProperty('mavendir')) println "maven_publish: mavendir is set"
-    	if (project.hasProperty('maven2_url')) println "maven_publish: maven2_url is set (and ignored)"
-    	if (project.hasProperty('maven2_user')) println "maven_publish: maven2_user is set"
-    	if (project.hasProperty('maven2_pass')) println "maven_publish: maven2_pass is set"
-    	if (System.getenv('MAVEN_GITHUB_USER') != null) println "maven_publish: MAVEN_GITHUB_USER is set"
-    	if (System.getenv('MAVEN_GITHUB_TOKEN') != null) println "maven_publish: MAVEN_GITHUB_TOKEN is set"
-    	if (release) println "maven_publish: release is set"
+compileTestJava {
+    sourceCompatibility = targetCompatibility = 8
+}
 
-        def pub_github = System.getenv('MAVEN_GITHUB_USER') != null && System.getenv('MAVEN_GITHUB_TOKEN') != null
-        if (pub_github) {
-            maven {
-                url uri("https://maven.pkg.github.com/sleepytrousers/enderio")
-                credentials {
-                    username System.getenv('MAVEN_GITHUB_USER')
-                    password System.getenv('MAVEN_GITHUB_TOKEN')
-                }
+test {
+    useJUnitPlatform()
+    javaLauncher.set(javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(8)
+    })
+    if (propertyBool('show_testing_output')) {
+        testLogging {
+            showStandardStreams = true
+        }
+    }
+}
+
+changelog {
+    headerParserRegex = ~/(\d+\.\d+.\d+(-[a-zA-Z0-9]*)?)/
+}
+
+String parserChangelog() {
+    if (!file('CHANGELOG.md').exists()) {
+        throw new GradleException('publish_with_changelog is true, but CHANGELOG.md does not exist in the workspace!')
+    }
+    String parsedChangelog = changelog.renderItem(
+            changelog.get(propertyString('mod_version')).withHeader(false).withEmptySections(false),
+            Changelog.OutputType.MARKDOWN)
+    if (parsedChangelog.isEmpty()) {
+        throw new GradleException('publish_with_changelog is true, but the changelog for the latest version is empty!')
+    }
+    return parsedChangelog
+}
+
+tasks.register('generateMixinJson') {
+    group 'cleanroom helpers'
+    def missingConfig = propertyStringList('mixin_configs').findAll(config -> !file("src/main/resources/mixins.${config}.json").exists())
+    onlyIf {
+        if (propertyBool('use_mixins') && propertyBool('generate_mixins_json')) {
+            return !missingConfig.empty
+        }
+        return false
+    }
+    doLast {
+        for (String mixinConfig : missingConfig) {
+            def file = file("src/main/resources/mixins.${mixinConfig}.json")
+            file << """{\n\t"package": "",\n\t"required": true,\n\t"refmap": "${propertyString('mixin_refmap')}",\n\t"target": "@env(DEFAULT)",\n\t"minVersion": "0.8.5",\n\t"compatibilityLevel": "JAVA_8",\n\t"mixins": [],\n\t"server": [],\n\t"client": []\n}"""
+        }
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    if (propertyBool('use_modern_java_syntax')) {
+        if (it.name in ['compileMcLauncherJava', 'compilePatchedMcJava']) {
+            return
+        }
+        sourceCompatibility = 17
+        options.release.set(8)
+        javaCompiler.set(javaToolchains.compilerFor {
+            languageVersion.set(JavaLanguageVersion.of(16))
+            vendor.set(JvmVendorSpec.AZUL)
+        })
+    }
+}
+
+tasks.register('cleanroomAfterSync') {
+    group 'cleanroom helpers'
+    dependsOn 'injectTags', 'generateMixinJson'
+}
+
+if (propertyBool('use_modern_java_syntax')) {
+    tasks.withType(Javadoc).configureEach {
+        sourceCompatibility = 17
+    }
+}
+
+tasks.named('injectTags', InjectTagsTask).configure {
+    onlyIf {
+        return propertyBool('use_tags') && !it.getTags().get().isEmpty()
+    }
+    it.outputClassName.set(propertyString('tag_class_name'))
+}
+
+tasks.named('prepareObfModsFolder').configure {
+    finalizedBy 'prioritizeCoremods'
+}
+
+tasks.register('prioritizeCoremods') {
+    dependsOn 'prepareObfModsFolder'
+    doLast {
+        fileTree('run/obfuscated').forEach {
+            if (it.isFile() && it.name =~ '(mixinbooter|configanytime)(-)([0-9])+\\.+([0-9])+(.jar)') {
+                it.renameTo(new File(it.parentFile, "!${it.name}"))
             }
         }
-//        def pub_maven = release && (project.hasProperty('mavendir') || project.hasProperty('maven2_url'))
-        def pub_maven = release && project.hasProperty('mavendir')
-        if (pub_maven) {
-//	        if (project.hasProperty('mavendir')) {
-	            maven { url mavendir }
-//	        } else if (project.hasProperty('maven2_user') && project.hasProperty('maven2_pass')) {
-//                maven {
-//                    url maven2_url
-//                    credentials {
-//                        username maven2_user
-//                        password maven2_pass
-//                    }
-//                }
-//            } else {
-//                maven { url maven2_url }
-//            }
-        }
-        if (!pub_github && !pub_maven) {
-            mavenLocal()
-        }
     }
 }
 
-tasks.curseforge.enabled = project.hasProperty('curseforge_key')
-
-// Part of the temporary fix for not compiling modules
-gradle.taskGraph.whenReady {
-    def tasksToDisable = [
-        'build', 'compileJava', 'assemble', 'sourceJar',
-        'check', 'reobfJar', 'signJar', 'apiJar', 'curseforge'
-    ]
-
-    gradle.taskGraph.allTasks.each {
-        if(!it.project.ext.include_in_build) {
-            if (tasksToDisable.find { n -> it.name == n } != null) it.enabled = false
-        }
+idea.project.settings {
+    taskTriggers {
+        afterSync 'cleanroomAfterSync'
     }
 }
 
-// Generate a random cmmon name for the cert
-String getCN() {
-    def firsts = ['Donald', 'Lex', 'The', 'Arthur', 'Bridget', 'Dorian', 'Ford', 'Guy', 'James', 'Jessica', 'John', 'Michael', 'Robinson', 'Zaphod', 'Bell', 'Penelope']
-    def lasts = ['Duck', 'Luthor', 'Doctor', 'Master', 'Dent', 'Jones', 'Gray', 'Prefect', 'Montag', 'Moriarty', 'Rabbit', 'Watson', 'Smith', 'Corleone', 'Crusoe', 'Beeblebrox', 'Cranel', 'Akk']
-    def rand = new Random()
-    return firsts[rand.nextInt(firsts.size())] + ' ' + lasts[rand.nextInt(lasts.size())]
-}
+tasks.runClient.dependsOn(":endercore:compileJava")
+loaded_modules.keySet().each { tasks.runClient.dependsOn(":enderio-${it}:compileJava") }
+tasks.runServer.dependsOn(":endercore:compileJava")
+loaded_modules.keySet().each { tasks.runServer.dependsOn(":enderio-${it}:compileJava") }
 
-// This is the new version/module format:
-// module name:
-//   enderio-<name>-<mc-version>-<version>
-// version:
-//   <major>.<minor>.<patch>-<cls>-<hash>
-// patch:
-//   defaults to 'version_patch'
-//   overriten by CI / build server
-// cls (classifier):
-//   * nightly
-//   * dev
-//   * ci
-//   * snapshot
-//   * etc.
-// hash:
-//   if on a dev machine - the current commit hash
+apply from: 'gradle/scripts/publishing.gradle'
+apply from: 'gradle/scripts/extra.gradle'
 
-// Examples:
-//   * enderio-base-1.12.2-4.0.1.jar            :: release version 4.0.1 for mc 1.12.2
-//   * enderio-base-1.12.2-4.2.1-nightly-4      :: nightly build no. 4 for version 4.2.1
-//   * enderio-base-1.12.2-4.5.1-dev-c91c8ee6e  :: dev (local) build for commit c91c8ee6e
-String getVersionString(Project proj) {
-    def build_server = System.getenv('CI') != null || System.getenv('BUILD_NUMBER') != null
-
-    def version_patch_lc = proj.version_patch
-    if (System.getenv('BUILD_NUMBER') != null)
-        version_patch_lc = System.getenv('BUILD_NUMBER')
-
-    def version_classifier = ''
-    if (System.getenv('VERSION_CLS') != null)
-        version_classifier = System.getenv('VERSION_CLS')
-    else if (System.getenv('NIGHTLY') != null)
-        version_classifier = 'nightly'
-
-    def version_hash = ''
-    if (!build_server) {
-        try {
-            version_hash = "git rev-parse --short HEAD".execute().text.trim()
-        } catch (all) { }
-    }
-
-    def version_base = "${proj.version_major}.${proj.version_minor}.${version_patch_lc}"
-    def version_parts = ([ version_base, version_classifier, version_hash ]).findAll { p -> p != '' }
-
-    return String.join('-', version_parts)
-}
-
-String getPrettyName(Project proj) {
-    def project_base_name = rootProject.name
-    if (proj.hasProperty('module_name'))
-        project_base_name += "-${proj.module_name}"
-    return project_base_name
-}
-
-String getArchiveBaseName(Project proj) {
-    return getPrettyName(proj) + "-${project.minecraft_version}"
-}
-
-String getChangelogFormat() {
-    return new File(projectDir, 'doc/changelog.html').getText('UTF-8')
-}
-
-// parse and import external config
-def parseConfig(File config) {
-    if (!config.exists())
-        return null
-
-    config.withReader {
-        def prop = new Properties()
-        prop.load(it)
-        return (new ConfigSlurper().parse(prop))
-    }
-}
-
-def resolveOption(Project project, String option, boolean defaultValue = false) {
-    def sourceValue = project.hasProperty(option) ? project.property(option) : defaultValue
-
-    return sourceValue == 'true' || sourceValue == true || sourceValue == 1
-}

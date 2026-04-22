@@ -2,6 +2,8 @@ plugins {
     id 'java-library'
 }
 
+apply from: "../gradle/scripts/applyrfg.gradle"
+
 dependencies {
-    compile 'com.squareup:javapoet:1.13.0'
+    implementation 'com.squareup:javapoet:1.13.0'
 }

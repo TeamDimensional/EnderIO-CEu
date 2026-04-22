@@ -1,7 +1,5 @@
-repositories {
-}
+apply from: "../gradle/scripts/applyrfg.gradle"
 
 dependencies {
-  compile project(":enderio-base")
-	deobfCompile "net.sengir.forestry:forestry_${minecraft_version}:${forestry_version}:api"
+  compileOnly project(":enderio-base")
 }
