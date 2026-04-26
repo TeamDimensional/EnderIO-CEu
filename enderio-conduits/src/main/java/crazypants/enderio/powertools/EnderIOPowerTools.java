@@ -14,6 +14,7 @@ import crazypants.enderio.api.addon.IEnderIOAddon;
 import crazypants.enderio.base.config.ConfigHandlerEIO;
 import crazypants.enderio.base.config.recipes.RecipeFactory;
 import crazypants.enderio.conduits.EnderIOConduits;
+import crazypants.enderio.conduits.Tags;
 import crazypants.enderio.powertools.config.Config;
 import crazypants.enderio.powertools.network.PacketHandler;
 import info.loenwind.autoconfig.ConfigHandler;
@@ -48,7 +49,7 @@ public class EnderIOPowerTools implements IEnderIOAddon {
   public static final @Nonnull String MODID = "enderiopowertools";
   public static final @Nonnull String DOMAIN = "enderio";
   public static final @Nonnull String MOD_NAME = "Ender IO Powertools";
-  public static final @Nonnull String VERSION = "@VERSION@";
+  public static final @Nonnull String VERSION = Tags.VERSION;  // TODO: temporarily uses Conduits' modid.
 
   public static final @Nonnull Lang lang = new Lang(DOMAIN);
 

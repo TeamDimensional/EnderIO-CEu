@@ -44,10 +44,10 @@ public class EnderIOConduitsAppliedEnergistics implements IEnderIOAddon {
     return modList.keySet().contains(MODID) && VERSION.equals(modList.get(MODID));
   }
 
-  public static final @Nonnull String MODID = "enderioconduitsappliedenergistics";
+  public static final @Nonnull String MODID = Tags.MOD_ID;
   public static final @Nonnull String DOMAIN = "enderio";
-  public static final @Nonnull String MOD_NAME = "Ender IO Conduits Applied Energistics";
-  public static final @Nonnull String VERSION = "@VERSION@";
+  public static final @Nonnull String MOD_NAME = Tags.MOD_NAME;
+  public static final @Nonnull String VERSION = Tags.VERSION;
 
   private static final @Nonnull String DEFAULT_DEPENDENCIES = "after:" + crazypants.enderio.base.EnderIO.MODID;
   public static final @Nonnull String DEPENDENCIES = DEFAULT_DEPENDENCIES;

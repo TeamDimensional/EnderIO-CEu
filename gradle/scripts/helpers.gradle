@@ -34,7 +34,7 @@ private Object $property(String key) {
     return value
 }
 
-String interpolate(String value) {
+String interpolate(String value, proj) {
     if (value.startsWith('${{') && value.endsWith('}}')) {
         value = value.substring(3, value.length() - 2)
         Binding newBinding = new Binding(this.binding.getVariables())
@@ -42,9 +42,13 @@ String interpolate(String value) {
         return new GroovyShell(this.getClass().getClassLoader(), newBinding).evaluate(value)
     }
     if (value.contains('${')) {
-        return new SimpleTemplateEngine().createTemplate(value).make(project.properties).toString()
+        return new SimpleTemplateEngine().createTemplate(value).make(proj.properties).toString()
     }
     return value
+}
+
+String interpolate(String value) {
+    return interpolate(value, project)
 }
 
 void assertProperty(String propertyName) {

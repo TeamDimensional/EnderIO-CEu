@@ -1,38 +1,37 @@
 [
-{
-  "modid": "enderioconduits",
-  "name": "Ender IO Conduits",
-  "description": "Compact conduits.",
-  "version": "${version}",
-  "mcversion": "${mcversion}",
-  "url": "http://enderio.com",
-  "updateUrl": "",
-  "authorList": [ "CrazyPants", "tterrag", "HenryLoenwind", "MatthiasM" , "CyanideX", "EpicSquid", "HypherionSA"],
-  "credits": "By CrazyPants, with the help of many",
-  "logoFile": "",
-  "screenshots": [
-  ],
-  "parent":"enderio",
-  "dependencies": [
-    "enderio"
-  ]
-},
-{
-  "modid": "enderiopowertools",
-  "name": "Ender IO Powertools",
-  "description": "Capacitor Bank and Power Monitor.",
-  "version": "${version}",
-  "mcversion": "${mcversion}",
-  "url": "http://enderio.com",
-  "updateUrl": "",
-  "authorList": [ "CrazyPants", "tterrag", "HenryLoenwind", "MatthiasM" , "CyanideX", "EpicSquid"],
-  "credits": "By CrazyPants, with the help of many",
-  "logoFile": "",
-  "screenshots": [
-  ],
-  "parent":"enderio",
-  "dependencies": [
-    "enderio", "enderioconduits"
-  ]
-}
+  {
+    "modid": "${mod_id}",
+    "name": "${mod_name}",
+    "description": "${mod_version}",
+    "version": "${mod_version}",
+    "mcversion": "${mcversion}",
+    "url": "${mod_url}",
+    "updateUrl": "${mod_update_json}",
+    "authorList": ${mod_authors},
+    "credits": "${mod_credits}",
+    "logoFile": "",
+    "screenshots": [],
+    "parent": "enderio",
+    "dependencies": [
+      "enderio"
+    ]
+  },
+  {
+    "modid": "enderiopowertools",
+    "name": "Ender IO Powertools",
+    "description": "Capacitor Bank and Power Monitor.",
+    "version": "${mod_version}",
+    "mcversion": "${mcversion}",
+    "url": "${mod_url}",
+    "updateUrl": "${mod_update_json}",
+    "authorList": ${mod_authors},
+    "credits": "${mod_credits}",
+    "logoFile": "",
+    "screenshots": [],
+    "parent":"enderio",
+    "dependencies": [
+      "enderio",
+      "enderioconduits"
+    ]
+  }
 ]

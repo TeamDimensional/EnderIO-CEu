@@ -93,8 +93,8 @@ public class EnderIO implements IEnderIOAddon {
 
   public static final @Nonnull String MODID = "enderio";
   public static final @Nonnull String DOMAIN = "enderio";
-  public static final @Nonnull String MOD_NAME = "Ender IO";
-  public static final @Nonnull String VERSION = "@VERSION@";
+  public static final @Nonnull String MOD_NAME = Tags.MOD_NAME;
+  public static final @Nonnull String VERSION = Tags.VERSION;
 
   private static final @Nonnull String DEFAULT_DEPENDENCIES = "after:endercore;after:hwyla;after:jei";
   public static final @Nonnull String DEPENDENCIES = DEFAULT_DEPENDENCIES;

@@ -1,37 +1,36 @@
 [
-{
-  "modid": "enderiointegrationtic",
-  "name": "Ender IO Integration with Tinkers' Construct",
-  "description": "I'm melting!",
-  "version": "${version}",
-  "mcversion": "${mcversion}",
-  "url": "http://enderio.com",
-  "updateUrl": "",
-  "authorList": [ "CrazyPants", "tterrag", "HenryLoenwind", "EpicSquid"],
-  "credits": "By CrazyPants, with the help of many",
-  "logoFile": "",
-  "screenshots": [
-  ],
-  "parent":"enderio",
-  "dependencies": [
-        "enderio"
-  ]
-},{
-  "modid": "enderiointegrationticlate",
-  "name": "Ender IO Integration with Tinkers' Construct",
-  "description": "I'm melting!",
-  "version": "${version}",
-  "mcversion": "${mcversion}",
-  "url": "http://enderio.com",
-  "updateUrl": "",
-  "authorList": [ "CrazyPants", "tterrag", "HenryLoenwind", "EpicSquid"],
-  "credits": "By CrazyPants, with the help of many",
-  "logoFile": "",
-  "screenshots": [
-  ],
-  "parent":"enderiointegrationtic",
-  "dependencies": [
-        "enderio"
-  ]
-}
+  {
+    "modid": "${mod_id}",
+    "name": "${mod_name}",
+    "description": "${mod_description}",
+    "version": "${mod_version}",
+    "mcversion": "${mcversion}",
+    "url": "${mod_url}",
+    "updateUrl": "${mod_update_json}",
+    "authorList": ${mod_authors},
+    "credits": "${mod_credits}",
+    "logoFile": "",
+    "screenshots": [],
+    "parent":"enderio",
+    "dependencies": [
+      "enderio"
+    ]
+  },
+  {
+    "modid": "${mod_id}late",
+    "name": "${mod_name} (Part 2)",
+    "description": "${mod_description}",
+    "version": "${mod_version}",
+    "mcversion": "${mcversion}",
+    "url": "${mod_url}",
+    "updateUrl": "${mod_update_json}",
+    "authorList": ${mod_authors},
+    "credits": "${mod_credits}",
+    "logoFile": "",
+    "screenshots": [],
+    "parent":"enderiointegrationtic",
+    "dependencies": [
+      "enderio"
+    ]
+  }
 ]

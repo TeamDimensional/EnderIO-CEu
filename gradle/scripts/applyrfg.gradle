@@ -1,5 +1,6 @@
 apply plugin: 'java'
 apply plugin: 'com.gtnewhorizons.retrofuturagradle'
+
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(propertyBool('use_modern_java_syntax') ? 16 : 8))
@@ -38,12 +39,15 @@ minecraft {
     extraRunJvmArguments.addAll(args)
     extraRunJvmArguments.addAll(propertyStringList('extra_jvm_args'))
 
-    if (propertyBool('use_tags')) {
-        if (file('tags.properties').exists()) {
-            Properties props = new Properties().tap {  it.load(file('tags.properties').newInputStream()); it }
+    if (propertyBool('use_tags') && project != rootProject && project.name != 'ap') {
+        def path = file("$rootDir/tags.properties")
+        if (path.exists()) {
+            Properties props = new Properties().tap {  it.load(path.newInputStream()); it }
             if (!props.isEmpty()) {
-                injectedTags.set(props.collectEntries { k, v -> [(k): interpolate(v)] })
+                injectedTags.set(props.collectEntries { k, v -> [(k): interpolate(v, project)] })
             }
+        } else {
+            throw new GradleException("Did not find tags.properties in project ${project}")
         }
     }
 }
@@ -54,3 +58,97 @@ if (project != rootProject) {
     tasks.named('runClient') { enabled = false }
     tasks.named('runServer') { enabled = false }
 }
+
+if (project != rootProject && project.name != 'ap') {
+
+    assertProperty 'mod_id'
+    assertProperty 'mod_name'
+    assertProperty 'mod_authors'
+    assertProperty 'mod_description'
+
+    processResources {
+
+        inputs.property 'mod_id', propertyString('mod_id')
+        inputs.property 'mod_name', propertyString('mod_name')
+        inputs.property 'mod_version', propertyString('mod_version')
+        inputs.property 'mod_description', propertyString('mod_description')
+        inputs.property 'mod_authors', "${propertyStringList('mod_authors', ',').join(', ')}"
+        inputs.property 'mod_credits', propertyString('mod_credits')
+        inputs.property 'mod_url', propertyString('mod_url')
+        inputs.property 'mod_update_json', propertyString('mod_update_json')
+        inputs.property 'mod_logo_path', propertyString('mod_logo_path')
+        inputs.property 'mixin_refmap', propertyString('mixin_refmap')
+        inputs.property 'mixin_package', propertyString('mixin_package')
+        inputs.property 'mixin_configs', propertyStringList('mixin_configs').join(' ')
+        inputs.property 'mcversion', '1.12.2'
+
+        def filterList = ['mcmod.info', 'pack.mcmeta']
+        filterList.addAll(propertyStringList('mixin_configs').collect(config -> "mixins.${config}.json" as String))
+
+        filesMatching(filterList) { fcd ->
+            fcd.expand(
+                    'mod_id': propertyString('mod_id'),
+                    'mod_name': propertyString('mod_name'),
+                    'mod_version': propertyString('mod_version'),
+                    'mod_description': propertyString('mod_description'),
+                    'mod_authors': "${propertyStringList('mod_authors', ',').join(', ')}",
+                    'mod_credits': propertyString('mod_credits'),
+                    'mod_url': propertyString('mod_url'),
+                    'mod_update_json': propertyString('mod_update_json'),
+                    'mod_logo_path': propertyString('mod_logo_path'),
+                    'mixin_refmap': propertyString('mixin_refmap'),
+                    'mixin_package': propertyString('mixin_package'),
+                    'mcversion': '1.12.2'
+            )
+        }
+        
+        if (propertyBool('use_access_transformer')) {
+            rename '(.+_at.cfg)', 'META-INF/$1'
+        }
+
+    }
+
+    tasks.named('injectTags').configure {
+        onlyIf {
+            return propertyBool('use_tags') && !it.getTags().get().isEmpty()
+        }
+        it.outputClassName.set(propertyString('tag_class_name'))
+    }
+}
+
+configurations {
+    embed
+    implementation.extendsFrom(embed)
+
+    runtimeElements {
+        attributes {
+            attribute(Attribute.of('rfgDeobfuscatorTransformed', Boolean), true)
+        }
+    }
+}
+
+jar {
+    from(provider { configurations.embed.collect {it.isDirectory() ? it : zipTree(it)} }) {
+        exclude 'META-INF/*'
+    }
+
+    manifest {
+        def attribute_map = [:]
+        if (propertyBool('is_coremod')) {
+            attribute_map['FMLCorePlugin'] = propertyString('coremod_plugin_class_name')
+            if (propertyBool('coremod_includes_mod')) {
+                attribute_map['FMLCorePluginContainsFMLMod'] = true
+                def currentTasks = gradle.startParameter.taskNames
+                if (currentTasks[0] == 'build' || currentTasks[0] == 'prepareObfModsFolder' || currentTasks[0] == 'runObfClient') {
+                    attribute_map['ForceLoadAsMod'] = true
+                }
+            }
+        }
+        if (propertyBool('use_access_transformer')) {
+            attribute_map['FMLAT'] = propertyString('access_transformer_locations')
+        }
+        attributes(attribute_map)
+    }
+}
+
+version = propertyString('mod_version')

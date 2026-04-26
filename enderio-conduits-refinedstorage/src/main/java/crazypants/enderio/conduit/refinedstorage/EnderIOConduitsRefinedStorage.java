@@ -1,5 +1,7 @@
 package crazypants.enderio.conduit.refinedstorage;
 
+import static crazypants.enderio.conduit.refinedstorage.EnderIOConduitsRefinedStorage.MODID;
+
 import java.util.Map;
 
 import javax.annotation.Nonnull;
@@ -26,8 +28,6 @@ import net.minecraftforge.fml.common.network.NetworkCheckHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import static crazypants.enderio.conduit.refinedstorage.EnderIOConduitsRefinedStorage.MODID;
-
 @Mod(modid = MODID, name = EnderIOConduitsRefinedStorage.MOD_NAME, version = EnderIOConduitsRefinedStorage.VERSION, dependencies = EnderIOConduitsRefinedStorage.DEPENDENCIES)
 @EventBusSubscriber(modid = MODID)
 public class EnderIOConduitsRefinedStorage implements IEnderIOAddon {
@@ -47,10 +47,10 @@ public class EnderIOConduitsRefinedStorage implements IEnderIOAddon {
     return modList.keySet().contains(MODID) && VERSION.equals(modList.get(MODID));
   }
 
-  public static final @Nonnull String MODID = "enderioconduitsrefinedstorage";
+  public static final @Nonnull String MODID = Tags.MOD_ID;
   public static final @Nonnull String DOMAIN = "enderio";
-  public static final @Nonnull String MOD_NAME = "Ender IO Conduits Refined Storage";
-  public static final @Nonnull String VERSION = "@VERSION@";
+  public static final @Nonnull String MOD_NAME = Tags.MOD_NAME;
+  public static final @Nonnull String VERSION = Tags.VERSION;
 
   private static final @Nonnull String DEFAULT_DEPENDENCIES = "after:" + crazypants.enderio.base.EnderIO.MODID;
   public static final @Nonnull String DEPENDENCIES = DEFAULT_DEPENDENCIES;

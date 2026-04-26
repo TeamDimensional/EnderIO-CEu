@@ -1,1 +1,5 @@
 apply from: "../gradle/scripts/applyrfg.gradle"
+
+dependencies {
+  embed 'info.loenwind.autosave:AutoSave:1.12.2-1.0.11'
+}

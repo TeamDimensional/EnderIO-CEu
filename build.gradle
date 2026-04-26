@@ -4,6 +4,8 @@
 import com.gtnewhorizons.retrofuturagradle.mcp.InjectTagsTask
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.gradle.ext.Gradle
+import groovy.json.JsonSlurper
+import groovy.json.JsonOutput
 
 plugins {
     id 'java'
@@ -21,8 +23,6 @@ apply from: 'gradle/scripts/helpers.gradle'
 // Early Assertions
 assertProperty 'mod_version'
 assertProperty 'root_package'
-assertProperty 'mod_id'
-assertProperty 'mod_name'
 
 assertSubProperties 'use_tags', 'tag_class_name'
 assertSubProperties 'use_access_transformer', 'access_transformer_locations'
@@ -41,20 +41,14 @@ setDefaultProperty 'extra_jvm_args', false, ''
 setDefaultProperty 'extra_tweak_classes', false, ''
 setDefaultProperty 'change_minecraft_sources', false, false
 
-version = propertyString('mod_version')
 group = propertyString('root_package')
 
 base {
-    archivesName.set(propertyString('mod_id'))
+    archivesName.set(propertyString('archive_filename'))
 }
 
 apply from: "gradle/scripts/applyrfg.gradle"
 apply from: "gradle/scripts/runtimeConfig.gradle"
-
-configurations {
-    embed
-    implementation.extendsFrom(embed)
-}
 
 dependencies {
     if (propertyBool('use_modern_java_syntax')) {
@@ -87,9 +81,32 @@ dependencies {
             transitive = false
         }
     }
-    if (propertyBool('enable_junit_testing')) {
-        testImplementation 'org.junit.jupiter:junit-jupiter:5.7.1'
-        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+// The main project has no java files, so no tags either
+tasks.named('injectTags') {
+    enabled = false
+}
+
+allprojects {
+    apply plugin: 'java'
+    dependencies {
+        if (propertyBool('enable_junit_testing')) {
+            testImplementation 'org.junit.jupiter:junit-jupiter:5.7.1'
+            testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+        }
+    }
+
+    test {
+        useJUnitPlatform()
+        javaLauncher.set(javaToolchains.launcherFor {
+            languageVersion = JavaLanguageVersion.of(8)
+        })
+        if (propertyBool('show_testing_output')) {
+            testLogging {
+                showStandardStreams = true
+            }
+        }
     }
 }
 
@@ -104,68 +121,6 @@ if (propertyBool('use_access_transformer')) {
             throw new GradleException("Access Transformer file [$fileLocation] does not exist!")
         }
     }
-}
-
-processResources {
-
-    inputs.property 'mod_id', propertyString('mod_id')
-    inputs.property 'mod_name', propertyString('mod_name')
-    inputs.property 'mod_version', propertyString('mod_version')
-    inputs.property 'mod_description', propertyString('mod_description')
-    inputs.property 'mod_authors', "${propertyStringList('mod_authors', ',').join(', ')}"
-    inputs.property 'mod_credits', propertyString('mod_credits')
-    inputs.property 'mod_url', propertyString('mod_url')
-    inputs.property 'mod_update_json', propertyString('mod_update_json')
-    inputs.property 'mod_logo_path', propertyString('mod_logo_path')
-    inputs.property 'mixin_refmap', propertyString('mixin_refmap')
-    inputs.property 'mixin_package', propertyString('mixin_package')
-    inputs.property 'mixin_configs', propertyStringList('mixin_configs').join(' ')
-
-    def filterList = ['mcmod.info', 'pack.mcmeta']
-    filterList.addAll(propertyStringList('mixin_configs').collect(config -> "mixins.${config}.json" as String))
-
-    filesMatching(filterList) { fcd ->
-        fcd.expand(
-                'mod_id': propertyString('mod_id'),
-                'mod_name': propertyString('mod_name'),
-                'mod_version': propertyString('mod_version'),
-                'mod_description': propertyString('mod_description'),
-                'mod_authors': "${propertyStringList('mod_authors', ',').join(', ')}",
-                'mod_credits': propertyString('mod_credits'),
-                'mod_url': propertyString('mod_url'),
-                'mod_update_json': propertyString('mod_update_json'),
-                'mod_logo_path': propertyString('mod_logo_path'),
-                'mixin_refmap': propertyString('mixin_refmap'),
-                'mixin_package': propertyString('mixin_package')
-        )
-    }
-    
-    if (propertyBool('use_access_transformer')) {
-        rename '(.+_at.cfg)', 'META-INF/$1'
-    }
-
-}
-
-jar {
-    manifest {
-        def attribute_map = [:]
-        if (propertyBool('is_coremod')) {
-            attribute_map['FMLCorePlugin'] = propertyString('coremod_plugin_class_name')
-            if (propertyBool('coremod_includes_mod')) {
-                attribute_map['FMLCorePluginContainsFMLMod'] = true
-                def currentTasks = gradle.startParameter.taskNames
-                if (currentTasks[0] == 'build' || currentTasks[0] == 'prepareObfModsFolder' || currentTasks[0] == 'runObfClient') {
-                    attribute_map['ForceLoadAsMod'] = true
-                }
-            }
-        }
-        if (propertyBool('use_access_transformer')) {
-            attribute_map['FMLAT'] = propertyString('access_transformer_locations')
-        }
-        attributes(attribute_map)
-    }
-    // Add all embedded dependencies into the jar
-    from(provider{ configurations.embed.collect {it.isDirectory() ? it : zipTree(it)} })
 }
 
 idea {
@@ -204,18 +159,6 @@ compileTestJava {
     sourceCompatibility = targetCompatibility = 8
 }
 
-test {
-    useJUnitPlatform()
-    javaLauncher.set(javaToolchains.launcherFor {
-        languageVersion = JavaLanguageVersion.of(8)
-    })
-    if (propertyBool('show_testing_output')) {
-        testLogging {
-            showStandardStreams = true
-        }
-    }
-}
-
 changelog {
     headerParserRegex = ~/(\d+\.\d+.\d+(-[a-zA-Z0-9]*)?)/
 }
@@ -231,23 +174,6 @@ String parserChangelog() {
         throw new GradleException('publish_with_changelog is true, but the changelog for the latest version is empty!')
     }
     return parsedChangelog
-}
-
-tasks.register('generateMixinJson') {
-    group 'cleanroom helpers'
-    def missingConfig = propertyStringList('mixin_configs').findAll(config -> !file("src/main/resources/mixins.${config}.json").exists())
-    onlyIf {
-        if (propertyBool('use_mixins') && propertyBool('generate_mixins_json')) {
-            return !missingConfig.empty
-        }
-        return false
-    }
-    doLast {
-        for (String mixinConfig : missingConfig) {
-            def file = file("src/main/resources/mixins.${mixinConfig}.json")
-            file << """{\n\t"package": "",\n\t"required": true,\n\t"refmap": "${propertyString('mixin_refmap')}",\n\t"target": "@env(DEFAULT)",\n\t"minVersion": "0.8.5",\n\t"compatibilityLevel": "JAVA_8",\n\t"mixins": [],\n\t"server": [],\n\t"client": []\n}"""
-        }
-    }
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -276,13 +202,6 @@ if (propertyBool('use_modern_java_syntax')) {
     }
 }
 
-tasks.named('injectTags', InjectTagsTask).configure {
-    onlyIf {
-        return propertyBool('use_tags') && !it.getTags().get().isEmpty()
-    }
-    it.outputClassName.set(propertyString('tag_class_name'))
-}
-
 tasks.named('prepareObfModsFolder').configure {
     finalizedBy 'prioritizeCoremods'
 }
@@ -308,6 +227,67 @@ tasks.runClient.dependsOn(":endercore:compileJava")
 loaded_modules.keySet().each { tasks.runClient.dependsOn(":enderio-${it}:compileJava") }
 tasks.runServer.dependsOn(":endercore:compileJava")
 loaded_modules.keySet().each { tasks.runServer.dependsOn(":enderio-${it}:compileJava") }
+
+def modsToCombine = ['enderio-base', 'enderio-machines', 'enderio-conduits', 'enderio-invpanel', 'enderio-integration-tic', 'enderio-integration-forestry', 'enderio-conduits-refinedstorage', 'enderio-conduits-opencomputers', 'enderio-conduits-appliedenergistics', 'enderio-endergy', 'enderio-conduits-mekanism']
+def generatedResourceDir = 'build/resources/main'
+
+sourceSets.main.resources {
+    srcDir generatedResourceDir
+}
+
+def combineResourceJsons = (path, start) -> {
+    println "Building a combined JSON at path ${path}"
+    def target = file(path)
+    target.delete()
+    modsToCombine.forEach {
+        def jsonSlurper = new JsonSlurper()
+        def inProjectPath = file("${it}/${path}")
+        if (inProjectPath.exists()) {
+            start << jsonSlurper.parseText(inProjectPath.text)
+        } else {
+            println "Skipping file ${it}/${path} as it does not exist"
+        }
+    }
+    target << JsonOutput.prettyPrint(JsonOutput.toJson(start))
+}
+
+tasks.register('combinedAssets') {
+    dependsOn subprojects.findAll { it.name.replace(":", "") in modsToCombine }.collect { it.tasks.named('build') }
+    dependsOn processResources
+
+    outputs.file("${generatedResourceDir}/mcmod.info")
+    outputs.file("${generatedResourceDir}/assets/enderio/sounds.json")
+    outputs.dir("${generatedResourceDir}/assets/enderio/lang")
+
+    doLast {
+        combineResourceJsons("${generatedResourceDir}/mcmod.info", [])
+        combineResourceJsons("${generatedResourceDir}/assets/enderio/sounds.json", [:])
+
+        modsToCombine.forEach {
+            File langDir = file("${it}/${generatedResourceDir}/assets/enderio/lang")
+            if (langDir.exists()) {
+                langDir.eachFileMatch( ~".*\\.lang\$" ) { langfile ->
+                    file("${generatedResourceDir}/assets/enderio/lang/${langfile.name}") << langfile.text << "\n"
+                }
+            }
+        }
+    }
+}
+
+tasks.named('jar', Jar).configure {
+    dependsOn tasks.named('combinedAssets')
+    from(file(generatedResourceDir))
+    from {
+        subprojects.findAll { it.name.replace(":", "") in modsToCombine }.collect { subproject ->
+            subproject.sourceSets.main.output + subproject.configurations.embed.collect { zipTree(it) } }
+    } {
+        exclude '**/mcmod.info'
+        exclude '**/sounds.json'
+        exclude '**/lang/*.lang'
+        exclude 'META-INF/*'
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
 
 apply from: 'gradle/scripts/publishing.gradle'
 apply from: 'gradle/scripts/extra.gradle'

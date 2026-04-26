@@ -68,13 +68,13 @@ dependencies {
       runtimeOnly it.key
     }
   } 
-  implementation project(":endercore")
-  
-  loaded_modules.entrySet().forEach {
+
+  implementation project(":endercore")  
+  /*loaded_modules.entrySet().forEach {
     if (shouldUse(enabledDependencies, it.value)) {
       implementation project(":enderio-${it.key}")
     }
-  }
+  }*/
 
 }
 

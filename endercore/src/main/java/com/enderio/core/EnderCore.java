@@ -63,11 +63,11 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 @Mod(modid = EnderCore.MODID, name = EnderCore.NAME, version = EnderCore.VERSION, guiFactory = "com.enderio.core.common.config.BaseConfigFactory")
 public class EnderCore implements IEnderMod {
 
-  public static final @Nonnull String MODID = "endercore";
+  public static final @Nonnull String MODID = Tags.MOD_ID;
   public static final @Nonnull String DOMAIN = MODID.toLowerCase(Locale.US);
-  public static final @Nonnull String NAME = "EnderCore";
+  public static final @Nonnull String NAME = Tags.MOD_NAME;
   public static final @Nonnull String BASE_PACKAGE = "com.enderio";
-  public static final @Nonnull String VERSION = "@VERSION@";
+  public static final @Nonnull String VERSION = Tags.VERSION;
 
   public static final @Nonnull Logger logger = NullHelper.notnull(LogManager.getLogger(NAME), "failed to aquire logger");
   public static final @Nonnull Lang lang = new Lang(MODID);

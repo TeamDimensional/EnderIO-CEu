@@ -1,5 +1,0 @@
-apply from: "../gradle/scripts/applyrfg.gradle"
-
-dependencies {
-  compileOnly project(":enderio-base")
-}

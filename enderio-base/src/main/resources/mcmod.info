@@ -1,29 +1,29 @@
 [
   {
     "modid": "enderio",
-    "name": "Ender IO",
-    "description": "Compact conduits, painted things and all sorts of stuff and bling.",
-    "version": "${version}",
+    "name": "Ender IO CEu",
+    "description": "Compact conduits, painted things and all sorts of stuff and bling. Long-term support for Minecraft 1.12.",
+    "version": "${mod_version}",
     "mcversion": "${mcversion}",
-    "url": "http://enderio.com",
-    "updateUrl": "",
-    "authorList": [ "CrazyPants", "tterrag", "HenryLoenwind", "MatthiasM" , "CyanideX", "EpicSquid"],
-    "credits": "By CrazyPants, with the help of many",
+    "url": "${mod_url}",
+    "updateUrl": "${mod_update_json}",
+    "authorList": ${mod_authors},
+    "credits": "${mod_credits}",
     "logoFile": "",
-    "screenshots": [
-    ],
-    "parent":"",
-    "dependencies": [
-    ]
+    "screenshots": [],
+    "parent": "",
+    "dependencies": ["endercore"]
   },
   {
-    "modid": "enderiobase",
-    "name": "Ender IO Base",
-    "description": "Basic materials and items for all EnderIO modules.",
-    "version": "${version}",
+    "modid": "${mod_id}",
+    "name": "${mod_name}",
+    "description": "${mod_description}",
+    "version": "${mod_version}",
     "mcversion": "${mcversion}",
-    "url": "http://enderio.com",
-    "authorList": [ "CrazyPants", "tterrag", "HenryLoenwind", "MatthiasM" , "CyanideX", "EpicSquid"],
+    "url": "${mod_url}",
+    "updateUrl": "${mod_update_json}",
+    "authorList": ${mod_authors},
+    "credits": "${mod_credits}",
     "parent": "enderio",
     "dependencies": [
       "enderio"

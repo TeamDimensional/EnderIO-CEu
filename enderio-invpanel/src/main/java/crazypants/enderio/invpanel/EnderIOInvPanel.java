@@ -43,10 +43,10 @@ public class EnderIOInvPanel implements IEnderIOAddon {
     return modList.keySet().contains(MODID) && VERSION.equals(modList.get(MODID));
   }
 
-  public static final @Nonnull String MODID = "enderioinvpanel";
+  public static final @Nonnull String MODID = Tags.MOD_ID;
   public static final @Nonnull String DOMAIN = "enderio";
-  public static final @Nonnull String MOD_NAME = "Ender IO Inventory Panel";
-  public static final @Nonnull String VERSION = "@VERSION@";
+  public static final @Nonnull String MOD_NAME = Tags.MOD_NAME;
+  public static final @Nonnull String VERSION = Tags.VERSION;
 
   @SuppressWarnings("unused")
   private static ConfigHandler configHandler;
