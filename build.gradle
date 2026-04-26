@@ -228,7 +228,12 @@ loaded_modules.keySet().each { tasks.runClient.dependsOn(":enderio-${it}:compile
 tasks.runServer.dependsOn(":endercore:compileJava")
 loaded_modules.keySet().each { tasks.runServer.dependsOn(":enderio-${it}:compileJava") }
 
-def modsToCombine = ['enderio-base', 'enderio-machines', 'enderio-conduits', 'enderio-invpanel', 'enderio-integration-tic', 'enderio-integration-forestry', 'enderio-conduits-refinedstorage', 'enderio-conduits-opencomputers', 'enderio-conduits-appliedenergistics', 'enderio-endergy', 'enderio-conduits-mekanism']
+def modsToCombine = [
+    'enderio-base',
+    'enderio-machines', 'enderio-conduits', 'enderio-invpanel', 'enderio-powertools',
+    'enderio-integration-tic', 'enderio-integration-forestry',
+    'enderio-conduits-refinedstorage', 'enderio-conduits-opencomputers', 'enderio-conduits-appliedenergistics', 'enderio-conduits-mekanism',
+    'enderio-endergy']
 def generatedResourceDir = 'build/resources/main'
 
 sourceSets.main.resources {

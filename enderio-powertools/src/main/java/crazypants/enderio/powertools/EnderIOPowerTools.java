@@ -13,14 +13,14 @@ import com.enderio.core.common.util.NNList;
 import crazypants.enderio.api.addon.IEnderIOAddon;
 import crazypants.enderio.base.config.ConfigHandlerEIO;
 import crazypants.enderio.base.config.recipes.RecipeFactory;
-import crazypants.enderio.conduits.EnderIOConduits;
-import crazypants.enderio.conduits.Tags;
 import crazypants.enderio.powertools.config.Config;
 import crazypants.enderio.powertools.network.PacketHandler;
+import crazypants.enderio.powertools.init.CommonProxy;
 import info.loenwind.autoconfig.ConfigHandler;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -28,7 +28,7 @@ import net.minecraftforge.fml.common.network.NetworkCheckHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-@Mod(modid = EnderIOPowerTools.MODID, name = EnderIOPowerTools.MOD_NAME, version = EnderIOPowerTools.VERSION, dependencies = "after:" + EnderIOConduits.MODID)
+@Mod(modid = EnderIOPowerTools.MODID, name = EnderIOPowerTools.MOD_NAME, version = EnderIOPowerTools.VERSION, dependencies = "required-after:enderioconduits")
 public class EnderIOPowerTools implements IEnderIOAddon {
 
   @NetworkCheckHandler
@@ -46,12 +46,15 @@ public class EnderIOPowerTools implements IEnderIOAddon {
     return modList.keySet().contains(MODID) && VERSION.equals(modList.get(MODID));
   }
 
-  public static final @Nonnull String MODID = "enderiopowertools";
+  public static final @Nonnull String MODID = Tags.MOD_ID;
   public static final @Nonnull String DOMAIN = "enderio";
-  public static final @Nonnull String MOD_NAME = "Ender IO Powertools";
-  public static final @Nonnull String VERSION = Tags.VERSION;  // TODO: temporarily uses Conduits' modid.
+  public static final @Nonnull String MOD_NAME = Tags.MOD_NAME;
+  public static final @Nonnull String VERSION = Tags.VERSION;
 
   public static final @Nonnull Lang lang = new Lang(DOMAIN);
+
+  @SidedProxy(clientSide = "crazypants.enderio.powertools.init.ClientProxy", serverSide = "crazypants.enderio.powertools.init.CommonProxy")
+  public static CommonProxy proxy;
 
   @SuppressWarnings("unused")
   private static ConfigHandler configHandler;
@@ -77,15 +80,18 @@ public class EnderIOPowerTools implements IEnderIOAddon {
   @EventHandler
   public static void preinit(@Nonnull FMLPreInitializationEvent event) {
     configHandler = new ConfigHandlerEIO(event, Config.F);
+    proxy.init(event);
   }
 
   @EventHandler
   public static void init(FMLInitializationEvent event) {
     PacketHandler.init(event);
+    proxy.init(event);
   }
 
   @EventHandler
   public static void postinit(FMLPostInitializationEvent event) {
+    proxy.init(event);
   }
 
 }

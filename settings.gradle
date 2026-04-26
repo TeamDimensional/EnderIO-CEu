@@ -20,7 +20,11 @@ plugins {
     id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
 }
 
-include ':endercore', ':enderio-base', ':enderio-machines', ':enderio-conduits', ':enderio-invpanel', ':enderio-integration-tic', ':enderio-integration-forestry', ':enderio-conduits-refinedstorage', ':enderio-conduits-opencomputers', ':enderio-conduits-appliedenergistics', ':enderio-endergy', 'ap', ':enderio-conduits-mekanism', ':enderio-zoo'
+include 'ap', ':endercore', ':enderio-base', ':enderio-machines', \
+        ':enderio-conduits', ':enderio-invpanel', ':enderio-endergy', ':enderio-zoo', ':enderio-powertools', \
+        ':enderio-integration-tic', ':enderio-integration-forestry', \
+        ':enderio-conduits-refinedstorage', ':enderio-conduits-opencomputers', ':enderio-conduits-appliedenergistics', ':enderio-conduits-mekanism'
+        
 
 rootProject.name = 'EnderIO'
 

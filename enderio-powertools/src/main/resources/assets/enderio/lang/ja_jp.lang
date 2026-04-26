@@ -1,0 +1,70 @@
+#PARSE_ESCAPES
+# ^ having this in the first line allows us to use "\uXXXX" escapes in this file
+
+#***  Ender IO Conduits *****#
+
+# Translators, check your ".guess" file to see which keys your
+# language is missing and which keys it has that do not exist anymore.
+
+# CapBanks
+tile.block_cap_bank.creative.name=クリエイティブ専用蓄電装置
+tile.block_cap_bank.simple.name=簡易蓄電装置
+tile.block_cap_bank.activated.name=蓄電装置
+tile.block_cap_bank.vibrant.name=ヴァイブラント蓄電装置
+tile.block_cap_bank.tooltip.detailed.line1=マルチブロック型のエネルギー貯蔵庫。
+tile.block_cap_bank.tooltip.detailed.line2=RF を用いた道具を充電可能。（削除予定）
+tile.block_cap_bank.tooltip.detailed.line3=素手で面を Shift 右クリックすると
+tile.block_cap_bank.tooltip.detailed.line4=情報表示切り替え。
+tile.block_cap_bank.tooltip.has_items=§6内部に §4{0,number,integer}§6 {0,choice,1#アイテム|1<アイテム}保有中。
+
+# TODO dedupe these?
+enderio.capbank.max_io=最大入出力
+enderio.capbank.max_in=最大入力
+enderio.capbank.max_out=最大出力
+enderio.capbank.change=入出力
+enderio.capbank.iodisplay.stable=入出
+enderio.capbank.iodisplay.gain=入
+enderio.capbank.iodisplay.loss=出
+enderio.capbank.iodisplay.input=入力
+enderio.capbank.iodisplay.output=出力
+
+enderio.gui.cap_bank.input_rs=入力レッドストーンモード
+enderio.gui.cap_bank.output_rs=出力レッドストーンモード
+enderio.gui.cap_bank.max_io=最大入出力
+enderio.gui.cap_bank.max_input=最大入力
+enderio.gui.cap_bank.max_output=最大出力
+enderio.gui.cap_bank.input_mode=入力
+enderio.gui.cap_bank.output_mode=出力
+
+# Power Monitor
+tile.block_power_monitor.name=電力モニター
+tile.block_power_monitor.tooltip.detailed.line1=接続されている機械の電力使用量とストレージを表示。
+tile.block_power_monitor.tooltip.detailed.line3=蓄電量に応じてレッドストーン信号を出力することが可能。
+tile.block_power_monitor.tooltip.detailed.line5=EnderIO のエネルギー導管への接続が必要。
+
+tile.block_advanced_power_monitor.name=グラフィカル電力モニター
+tile.block_advanced_power_monitor.tooltip.detailed.line1=接続されている機械の電力使用量とストレージを表示。
+tile.block_advanced_power_monitor.tooltip.detailed.line3=蓄電量に応じてレッドストーン信号を出力することが可能。
+tile.block_advanced_power_monitor.tooltip.detailed.line5=EnderIO のエネルギー導管への接続が必要。
+
+enderio.gui.power_monitor.engine_control=エンジン制御
+enderio.gui.power_monitor.emit=Emit
+enderio.gui.power_monitor.engine_section1=ストレージが以下より少ない際に信号を
+enderio.gui.power_monitor.engine_section2=出力：
+enderio.gui.power_monitor.engine_section3=％
+enderio.gui.power_monitor.engine_section4=ストレージが以下の割合以上で停止：
+enderio.gui.power_monitor.engine_section5=
+enderio.gui.power_monitor.of=/
+enderio.gui.power_monitor.conduit_storage=導管の総通電量
+enderio.gui.power_monitor.capbank_storage=蓄電装置の総蓄電量
+enderio.gui.power_monitor.machine_buffer=機械の総蓄電量
+enderio.gui.power_monitor.average_output=５秒間の平均出力
+enderio.gui.power_monitor.average_input=５秒間の平均入力
+enderio.gui.power_monitor.no_network_error=導管に接続されていません。データを表示するには導管に接続してください。
+
+# Gauge
+tile.block_gauge.name=エネルギーゲージ
+tile.block_gauge.tooltip.detailed.line1=機械と隣接して設置することで、電力残量を可視化。
+
+
+enderio.config.capbank=蓄電装置

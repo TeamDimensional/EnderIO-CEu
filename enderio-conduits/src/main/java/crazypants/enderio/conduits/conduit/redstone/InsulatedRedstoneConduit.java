@@ -1,12 +1,31 @@
 package crazypants.enderio.conduits.conduit.redstone;
 
+import static crazypants.enderio.base.filter.FilterRegistry.getFilterForUpgrade;
+import static crazypants.enderio.conduits.init.ConduitObject.item_redstone_conduit;
+
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import com.enderio.core.api.client.gui.ITabPanel;
 import com.enderio.core.common.util.DyeColor;
 import com.enderio.core.common.util.NNList;
 import com.enderio.core.common.util.NullHelper;
 import com.enderio.core.common.vecmath.Vector4f;
+
 import crazypants.enderio.base.EnderIO;
-import crazypants.enderio.base.conduit.*;
+import crazypants.enderio.base.conduit.ConduitUtil;
+import crazypants.enderio.base.conduit.ConnectionMode;
+import crazypants.enderio.base.conduit.IClientConduit;
+import crazypants.enderio.base.conduit.IConduit;
+import crazypants.enderio.base.conduit.IConduitNetwork;
+import crazypants.enderio.base.conduit.IConduitTexture;
+import crazypants.enderio.base.conduit.IGuiExternalConnection;
+import crazypants.enderio.base.conduit.RaytraceResult;
 import crazypants.enderio.base.conduit.geom.CollidableComponent;
 import crazypants.enderio.base.conduit.redstone.ConnectivityTool;
 import crazypants.enderio.base.conduit.redstone.signals.BundledSignal;
@@ -18,7 +37,11 @@ import crazypants.enderio.base.filter.FilterRegistry;
 import crazypants.enderio.base.filter.capability.CapabilityFilterHolder;
 import crazypants.enderio.base.filter.capability.IFilterHolder;
 import crazypants.enderio.base.filter.gui.FilterGuiUtil;
-import crazypants.enderio.base.filter.redstone.*;
+import crazypants.enderio.base.filter.redstone.DefaultInputSignalFilter;
+import crazypants.enderio.base.filter.redstone.DefaultOutputSignalFilter;
+import crazypants.enderio.base.filter.redstone.IInputSignalFilter;
+import crazypants.enderio.base.filter.redstone.IOutputSignalFilter;
+import crazypants.enderio.base.filter.redstone.IRedstoneSignalFilter;
 import crazypants.enderio.base.filter.redstone.items.IItemInputSignalFilterUpgrade;
 import crazypants.enderio.base.filter.redstone.items.IItemOutputSignalFilterUpgrade;
 import crazypants.enderio.base.render.registry.TextureRegistry;
@@ -26,10 +49,14 @@ import crazypants.enderio.base.tool.ToolUtil;
 import crazypants.enderio.conduits.conduit.AbstractConduit;
 import crazypants.enderio.conduits.config.ConduitConfig;
 import crazypants.enderio.conduits.gui.RedstoneSettings;
+import crazypants.enderio.conduits.lang.Lang;
 import crazypants.enderio.conduits.render.BlockStateWrapperConduitBundle;
 import crazypants.enderio.conduits.render.ConduitTexture;
-import crazypants.enderio.powertools.lang.Lang;
-import crazypants.enderio.util.*;
+import crazypants.enderio.util.EnumReader;
+import crazypants.enderio.util.FuncUtil;
+import crazypants.enderio.util.NNPair;
+import crazypants.enderio.util.NNSidedObject;
+import crazypants.enderio.util.Prep;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRedstoneWire;
 import net.minecraft.block.state.IBlockState;
@@ -47,16 +74,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static crazypants.enderio.base.filter.FilterRegistry.getFilterForUpgrade;
-import static crazypants.enderio.conduits.init.ConduitObject.item_redstone_conduit;
 
 public class InsulatedRedstoneConduit extends AbstractConduit implements IRedstoneConduit, IFilterHolder<IRedstoneSignalFilter> {
 

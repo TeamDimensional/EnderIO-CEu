@@ -46,6 +46,44 @@ public enum Lang implements ILang {
   GUI_CONDUIT_BUNDLE_FULL(".gui.conduit_bundle_full"),
   GUI_NETWORK_PARTIALLY_UNLOADED(".gui.conduit.network.unloaded"),
 
+  // Conduit Probe
+  GUI_CONDUIT_PROBE_ITEM_HEADING(".gui.conduit_probe.item.heading"),
+  GUI_CONDUIT_PROBE_ITEM_HEADING_NO_CONNECTIONS(".gui.conduit_probe.item.heading.no_connections"),
+
+  GUI_CONDUIT_PROBE_NO_ITEMS(".gui.conduit_probe.item.receive.no_items"),
+  GUI_CONDUIT_PROBE_NO_ITEM(".gui.conduit_probe.item.receive.no_item"),
+  GUI_CONDUIT_PROBE_RECEIVE_ITEMS(".gui.conduit_probe.item.receive.items"),
+  GUI_CONDUIT_PROBE_RECEIVE_ITEM(".gui.conduit_probe.item.receive.item"),
+
+  GUI_ENERGY_CONDUIT(".gui.conduit_energy.header"),
+  GUI_ITEM_CONDUIT(".gui.conduit_item.header"),
+  GUI_FLUID_CONDUIT(".gui.conduit_fluid.header"),
+  GUI_REDSTONE_CONDUIT(".gui.conduit_redstone.header"),
+
+  GUI_CONDUIT_PROBE_EXTRACT_NO_ITEM_NO_TARGET(".gui.conduit_probe.item.extract.no_item.no_targets"),
+  GUI_CONDUIT_PROBE_EXTRACT_NO_ITEM_TARGETS(".gui.conduit_probe.item.extract.no_item.targets"),
+  GUI_CONDUIT_PROBE_EXTRACT_ITEM_NO_TARGET(".gui.conduit_probe.item.extract.item.no_targets"),
+  GUI_CONDUIT_PROBE_EXTRACT_ITEM_TARGETS(".gui.conduit_probe.item.extract.item.targets"),
+
+  GUI_CONDUIT_PROBE_POWER_TRACKED_1(".gui.conduit_probe.power.tracked_conduit.line1"),
+  GUI_CONDUIT_PROBE_POWER_TRACKED_2(".gui.conduit_probe.power.tracked_conduit.line2"),
+  GUI_CONDUIT_PROBE_POWER_TRACKED_3(".gui.conduit_probe.power.tracked_conduit.line3"),
+  GUI_CONDUIT_PROBE_POWER_TRACKED_4(".gui.conduit_probe.power.tracked_conduit.line4"),
+
+  GUI_CONDUIT_PROBE_POWER_NETWORK_1(".gui.conduit_probe.power.tracked_network.line1"),
+  GUI_CONDUIT_PROBE_POWER_NETWORK_2(".gui.conduit_probe.power.tracked_network.line2"),
+  GUI_CONDUIT_PROBE_POWER_NETWORK_3(".gui.conduit_probe.power.tracked_network.line3"),
+  GUI_CONDUIT_PROBE_POWER_NETWORK_4(".gui.conduit_probe.power.tracked_network.line4"),
+  GUI_CONDUIT_PROBE_POWER_NETWORK_5(".gui.conduit_probe.power.tracked_network.line5"),
+  GUI_CONDUIT_PROBE_POWER_NETWORK_6(".gui.conduit_probe.power.tracked_network.line6"),
+
+  GUI_CONDUIT_PROBE_REDSTONE_HEADING(".gui.conduit_probe.redstone.heading"),
+  GUI_CONDUIT_PROBE_REDSTONE_HEADING_NO_CONNECTIONS(".gui.conduit_probe.redstone.heading.no_connections"),
+
+  GUI_CONDUIT_PROBE_REDSTONE_STRONG(".gui.conduit_probe.redstone.strong"),
+  GUI_CONDUIT_PROBE_REDSTONE_WEAK(".gui.conduit_probe.redstone.weak"),
+  GUI_CONDUIT_PROBE_REDSTONE_EXTERNAL(".gui.conduit_probe.redstone.external"),
+
   ;
 
   private final @Nonnull String key;

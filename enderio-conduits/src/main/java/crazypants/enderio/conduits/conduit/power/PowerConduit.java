@@ -1,5 +1,8 @@
 package crazypants.enderio.conduits.conduit.power;
 
+import static crazypants.enderio.base.conduit.ConnectionMode.INPUT;
+import static crazypants.enderio.base.conduit.ConnectionMode.OUTPUT;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
@@ -40,9 +43,9 @@ import crazypants.enderio.base.tool.ToolUtil;
 import crazypants.enderio.conduits.conduit.AbstractConduit;
 import crazypants.enderio.conduits.config.ConduitConfig;
 import crazypants.enderio.conduits.gui.PowerSettings;
+import crazypants.enderio.conduits.lang.Lang;
 import crazypants.enderio.conduits.render.BlockStateWrapperConduitBundle;
 import crazypants.enderio.conduits.render.ConduitTexture;
-import crazypants.enderio.powertools.lang.Lang;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -60,9 +63,6 @@ import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import static crazypants.enderio.base.conduit.ConnectionMode.INPUT;
-import static crazypants.enderio.base.conduit.ConnectionMode.OUTPUT;
 
 public class PowerConduit extends AbstractConduit implements IPowerConduit {
 

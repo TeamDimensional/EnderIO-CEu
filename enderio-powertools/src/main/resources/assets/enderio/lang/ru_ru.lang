@@ -1,0 +1,70 @@
+#PARSE_ESCAPES
+# ^ having this in the first line allows us to use "\uXXXX" escapes in this file
+
+#***  Ender IO Conduits *****#
+
+# Translators, check your ".guess" file to see which keys your
+# language is missing and which keys it has that do not exist anymore.
+
+# CapBanks
+tile.block_cap_bank.creative.name=Творческий блок конденсаторов
+tile.block_cap_bank.simple.name=Основной блок конденсаторов
+tile.block_cap_bank.activated.name=Блок конденсаторов
+tile.block_cap_bank.vibrant.name=Вибрирующий блок конденсаторов
+tile.block_cap_bank.tooltip.detailed.line1=Мульти-блок для хранения энергии.
+tile.block_cap_bank.tooltip.detailed.line2=Может заряжать RF-предметы. (*будет удалено)
+tile.block_cap_bank.tooltip.detailed.line3=Shift-ПКМ, по экрану пустой рукой,
+tile.block_cap_bank.tooltip.detailed.line4=чтобы изменить отображаемую информацию
+tile.block_cap_bank.tooltip.has_items=§6Содержит §4{0,number,integer}§6 {0,choice,1#item|1<items} в инвентаре
+
+# TODO dedupe these?
+enderio.capbank.max_io=Макс. вход/выход
+enderio.capbank.max_in=Макс. вход
+enderio.capbank.max_out=Макс. выход
+enderio.capbank.change=Вход/выход
+enderio.capbank.iodisplay.stable=Вход/выход
+enderio.capbank.iodisplay.gain=Вход
+enderio.capbank.iodisplay.loss=Выход
+enderio.capbank.iodisplay.input=Вход
+enderio.capbank.iodisplay.output=Выход
+
+enderio.gui.cap_bank.input_rs=Режим красного камня на входе
+enderio.gui.cap_bank.output_rs=Режим красного камня на выходе
+enderio.gui.cap_bank.max_io=Макс. вход/выход
+enderio.gui.cap_bank.max_input=Макс. вход
+enderio.gui.cap_bank.max_output=Макс. выход
+enderio.gui.cap_bank.input_mode=Вход
+enderio.gui.cap_bank.output_mode=Выход
+
+# Power Monitor
+tile.block_power_monitor.name=Индикатор мощности
+tile.block_power_monitor.tooltip.detailed.line1=Показывает сведения о затратах энергии и хранилище.
+tile.block_power_monitor.tooltip.detailed.line3=Может быть использован для излучения красного камня на основе хранимой энергии.
+tile.block_power_monitor.tooltip.detailed.line5=Должен быть присоединён к трубе EnderIO.
+
+tile.block_advanced_power_monitor.name=Графический индикатор мощности
+tile.block_advanced_power_monitor.tooltip.detailed.line1=Показывает сведения о затратах энергии и хранилище.
+tile.block_advanced_power_monitor.tooltip.detailed.line3=Может быть использован для излучения красного камня на основе хранимой энергии.
+tile.block_advanced_power_monitor.tooltip.detailed.line5=Должен быть присоединён к трубе EnderIO.
+
+enderio.gui.power_monitor.engine_control=Управление двигателем
+enderio.gui.power_monitor.emit=Подавать сигнал
+enderio.gui.power_monitor.engine_section1=Подать сигнал, если хранилище заполнено меньше
+enderio.gui.power_monitor.engine_section2=чем на
+enderio.gui.power_monitor.engine_section3=%.
+enderio.gui.power_monitor.engine_section4= Остановиться, если хранилище заполнено более
+enderio.gui.power_monitor.engine_section5=или точно
+enderio.gui.power_monitor.of=на
+enderio.gui.power_monitor.conduit_storage=Энергия в трубе
+enderio.gui.power_monitor.capbank_storage=Энергия в блоке конденсаторов
+enderio.gui.power_monitor.machine_buffer=Энергия в механизме
+enderio.gui.power_monitor.average_output=Средний выход за 5 секунд
+enderio.gui.power_monitor.average_input=Средний вход за 5 секунд
+enderio.gui.power_monitor.no_network_error=Нет соединения с сетью. Индикатор мощности должен быть подключён к сети для считывания информации.
+
+# Gauge
+tile.block_gauge.name=Датчик энергии
+tile.block_gauge.tooltip.detailed.line1=Отображает энергетические уровни соседних блоков.
+
+
+enderio.config.capbank=Блок конденсаторов

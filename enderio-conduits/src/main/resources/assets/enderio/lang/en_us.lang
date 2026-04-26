@@ -35,62 +35,6 @@ enderio.item_liquid_conduit_ender.tooltip.detailed.line2=Allows multiple fluids 
 
 enderio.item_item_conduit.name=Item Conduit
 
-# CapBanks
-tile.block_cap_bank.creative.name=Creative Capacitor Bank
-tile.block_cap_bank.simple.name=Basic Capacitor Bank
-tile.block_cap_bank.activated.name=Capacitor Bank
-tile.block_cap_bank.vibrant.name=Vibrant Capacitor Bank
-tile.block_cap_bank.tooltip.detailed.line1=Multi-block energy storage.
-tile.block_cap_bank.tooltip.detailed.line2=Can charge RF powered items. (to be removed)
-tile.block_cap_bank.tooltip.detailed.line3=Shift-R-Click on a face with an empty hand
-tile.block_cap_bank.tooltip.detailed.line4=to change information display
-tile.block_cap_bank.tooltip.has_items=§6Contains §4{0,number,integer}§6 {0,choice,1#item|1<items} in inventory
-
-# TODO dedupe these?
-enderio.capbank.max_io=Max I/O
-enderio.capbank.max_in=Max Input
-enderio.capbank.max_out=Max Output
-enderio.capbank.change=I/O
-enderio.capbank.iodisplay.stable=I/O
-enderio.capbank.iodisplay.gain=In
-enderio.capbank.iodisplay.loss=Out
-enderio.capbank.iodisplay.input=Input
-enderio.capbank.iodisplay.output=Output
-
-enderio.gui.cap_bank.input_rs=Input Redstone Mode
-enderio.gui.cap_bank.output_rs=Output Redstone Mode
-enderio.gui.cap_bank.max_io=Max I/O
-enderio.gui.cap_bank.max_input=Max Input
-enderio.gui.cap_bank.max_output=Max Output
-enderio.gui.cap_bank.input_mode=Input
-enderio.gui.cap_bank.output_mode=Output
-
-# Power Monitor
-tile.block_power_monitor.name=Power Monitor
-tile.block_power_monitor.tooltip.detailed.line1=Displays details of power use and storage.
-tile.block_power_monitor.tooltip.detailed.line3=Can be used to emit redstone based on stored power levels-
-tile.block_power_monitor.tooltip.detailed.line5=Must be attached to an EnderIO energy conduit.
-
-tile.block_advanced_power_monitor.name=Graphical Power Monitor
-tile.block_advanced_power_monitor.tooltip.detailed.line1=Displays details of power use and storage.
-tile.block_advanced_power_monitor.tooltip.detailed.line3=Can be used to emit redstone based on stored power levels.
-tile.block_advanced_power_monitor.tooltip.detailed.line5=Must be attached to an EnderIO energy conduit.
-
-enderio.gui.power_monitor.engine_control=Engine Control
-enderio.gui.power_monitor.emit=Emit
-enderio.gui.power_monitor.engine_section1=Emit signal when storage less
-enderio.gui.power_monitor.engine_section2=than
-enderio.gui.power_monitor.engine_section3=% full.
-enderio.gui.power_monitor.engine_section4= Stop when storage greater than
-enderio.gui.power_monitor.engine_section5=or equal to
-enderio.gui.power_monitor.of=of
-enderio.gui.power_monitor.conduit_storage=Conduit Storage
-enderio.gui.power_monitor.capbank_storage=Capacitor Bank Storage
-enderio.gui.power_monitor.machine_buffer=Machine Buffers
-enderio.gui.power_monitor.average_output=Average output over 5 seconds
-enderio.gui.power_monitor.average_input=Average input over 5 seconds
-enderio.gui.power_monitor.no_network_error=No conduit network attached. The Power Monitor needs to be attached to a conduit network to read data from.
-
 # Conduit Probe
 enderio.gui.conduit_probe.item.heading=Item Conduit connection to: %s
 enderio.gui.conduit_probe.item.heading.no_connections=Item Conduit has no external connections
@@ -130,12 +74,7 @@ enderio.gui.conduit_redstone.header=Redstone Conduit
 
 enderio.gui.conduit_bundle_full=Bundle Full
 
-# Gauge
-tile.block_gauge.name=Energy Gauge
-tile.block_gauge.tooltip.detailed.line1=Displays energy levels of adjacent blocks.
-
-
-enderio.config.capbank=Capacitor Bank
+# Config
 enderio.config.condit=Conduits
 enderio.config.condit.energy=Energy Conduits
 enderio.config.condit.fluid=Fluid Conduits

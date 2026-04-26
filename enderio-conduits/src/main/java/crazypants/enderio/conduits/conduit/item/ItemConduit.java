@@ -1,5 +1,8 @@
 package crazypants.enderio.conduits.conduit.item;
 
+import static crazypants.enderio.base.init.ModObject.itemConduitProbe;
+import static crazypants.enderio.conduits.init.ConduitObject.item_item_conduit;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
@@ -49,10 +52,10 @@ import crazypants.enderio.conduits.conduit.AbstractConduit;
 import crazypants.enderio.conduits.conduit.power.IPowerConduit;
 import crazypants.enderio.conduits.conduit.power.PowerConduit;
 import crazypants.enderio.conduits.gui.ItemSettings;
+import crazypants.enderio.conduits.lang.Lang;
 import crazypants.enderio.conduits.render.BlockStateWrapperConduitBundle;
 import crazypants.enderio.conduits.render.ConduitTexture;
 import crazypants.enderio.conduits.render.ConduitTextureWrapper;
-import crazypants.enderio.powertools.lang.Lang;
 import crazypants.enderio.util.EnumReader;
 import crazypants.enderio.util.Prep;
 import net.minecraft.entity.player.EntityPlayer;
@@ -71,9 +74,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-
-import static crazypants.enderio.base.init.ModObject.itemConduitProbe;
-import static crazypants.enderio.conduits.init.ConduitObject.item_item_conduit;
 
 public class ItemConduit extends AbstractConduit implements IItemConduit, IFilterHolder<IItemFilter>, IUpgradeHolder {
 
@@ -858,8 +858,8 @@ public class ItemConduit extends AbstractConduit implements IItemConduit, IFilte
   @Override
   @Nonnull
   public List<String> getFunctionUpgradeToolTipText(@Nonnull EnumFacing dir) {
-    return new NNList<>(crazypants.enderio.conduits.lang.Lang.GUI_ITEM_FUNCTION_UPGRADE_DETAILS.get(),
-        crazypants.enderio.conduits.lang.Lang.GUI_ITEM_FUNCTION_UPGRADE_DETAILS2.get(getMaximumExtracted(dir)));
+    return new NNList<>(Lang.GUI_ITEM_FUNCTION_UPGRADE_DETAILS.get(),
+        Lang.GUI_ITEM_FUNCTION_UPGRADE_DETAILS2.get(getMaximumExtracted(dir)));
   }
 
   @Override

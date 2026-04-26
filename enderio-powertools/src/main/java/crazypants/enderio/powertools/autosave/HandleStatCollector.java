@@ -1,4 +1,4 @@
-package crazypants.enderio.conduits.autosave;
+package crazypants.enderio.powertools.autosave;
 
 import java.lang.reflect.Type;
 import java.util.Set;

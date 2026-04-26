@@ -13,7 +13,8 @@
     "screenshots": [],
     "parent": "enderio",
     "dependencies": [
-      "enderio"
+      "enderio",
+      "enderioconduits"
     ]
   }
 ]
