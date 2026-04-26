@@ -19,6 +19,7 @@
 **/.project
 **/bin
 **/.apt_generated/
+**/.apt_generated1/
 **/.factorypath
 
 ## intellij
@@ -29,6 +30,9 @@
 /*.iws
 /atlassian-ide-plugin.xml
 /classes
+
+## vscode
+/.vscode
 
 ## gedit
 *~
