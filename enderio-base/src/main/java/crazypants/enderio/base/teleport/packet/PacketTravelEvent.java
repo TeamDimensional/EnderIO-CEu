@@ -76,6 +76,18 @@ public class PacketTravelEvent implements IMessage {
 
     private boolean doServerTeleport(@Nonnull Entity toTp, @Nonnull BlockPos pos, int powerUse, boolean conserveMotion, @Nonnull TravelSource source,
         @Nonnull EnumHand hand) {
+        
+      if (source == TravelSource.TELEPAD) {
+        // Telepad and Rod of Return do not send this packet, and instead run serverside code directly ;)
+        return false;
+      }
+
+      BlockPos playerPos = toTp.getPosition();
+      double dist = Math.sqrt(playerPos.distanceSq(pos)) - 10;  // allow some leeway in case positions have desynced
+      if (dist > source.getMaxDistanceTravelled()) {
+        return false;
+      }
+
       EntityPlayer player = toTp instanceof EntityPlayer ? (EntityPlayer) toTp : null;
 
       TeleportEntityEvent evt = new TeleportEntityEvent(toTp, source, pos, toTp.dimension);

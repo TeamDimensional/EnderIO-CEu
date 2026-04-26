@@ -8,10 +8,12 @@ import crazypants.enderio.base.item.coordselector.TelepadTarget;
 import crazypants.enderio.machines.machine.teleport.telepad.TileDialingDevice;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.relauncher.Side;
 
 public class PacketTargetList extends MessageTileEntity<TileDialingDevice> {
 
@@ -51,8 +53,12 @@ public class PacketTargetList extends MessageTileEntity<TileDialingDevice> {
       TileDialingDevice te = message.getTileEntity(message.getWorld(ctx));
       if (te != null) {
         if (message.isAdd) {
-          te.addTarget(message.target);
+          // We only need to do this on the client, because the event is normally sent from the server
+          if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
+            te.addTarget(message.target);
+          }
         } else {
+          // This one is sent from the client upon a click, but there's not much harm otherwise
           te.removeTarget(message.target);
         }
       }
