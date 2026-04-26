@@ -88,5 +88,10 @@ public class ItemConfig {
       "Disables the Death Urn completely. Don't forget to disable the item recipe when you enable this.").sync();
   public static final IValue<Boolean> dpPrivate = DP.make("protectedGraves", true, //
       "Determine if a Death Urn can be looted by everone or only by the owner. Creative mode players can loot them always.").sync();
+    
+  public static final IValueFactory CAP = F.section(".capacitors");
+
+  public static final IValue<Float> capMaximumNBTLevel = CAP.make("maxNBTLevel", 10.0f, //
+      "The maximum level that can be configured through NBT values of a capacitor. Capacitors with higher levels will act as though their level is 1. High values may behave erratically in some scenarios. This *does not* affect the dungeon loot capacitors and is primarily a tool for pack developers.").setMin(1).setMax(200.0f).sync();
 
 }

@@ -11,6 +11,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import crazypants.enderio.api.capacitor.CapabilityCapacitorData;
 import crazypants.enderio.api.capacitor.ICapacitorData;
 import crazypants.enderio.api.capacitor.ICapacitorKey;
+import crazypants.enderio.base.config.config.ItemConfig;
 import crazypants.enderio.util.Prep;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -56,7 +57,7 @@ public class CapacitorHelper {
       return null;
     }
     final float capLevel = nbtTag.getFloat("level");
-    if (capLevel < 0 || capLevel >= 10) {
+    if (capLevel < 0 || capLevel >= ItemConfig.capMaximumNBTLevel.get()) {
       return null;
     }
     return new NBTCapacitorData(stack.getItem().getUnlocalizedName(stack), capLevel, nbtTag);
