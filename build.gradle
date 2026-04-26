@@ -240,7 +240,7 @@ sourceSets.main.resources {
     srcDir generatedResourceDir
 }
 
-def combineResourceJsons = (path, start) -> {
+def combineResourceJsons = (path, push, get) -> {
     println "Building a combined JSON at path ${path}"
     def target = file(path)
     target.delete()
@@ -248,12 +248,12 @@ def combineResourceJsons = (path, start) -> {
         def jsonSlurper = new JsonSlurper()
         def inProjectPath = file("${it}/${path}")
         if (inProjectPath.exists()) {
-            start << jsonSlurper.parseText(inProjectPath.text)
+            push(jsonSlurper.parseText(inProjectPath.text))
         } else {
             println "Skipping file ${it}/${path} as it does not exist"
         }
     }
-    target << JsonOutput.prettyPrint(JsonOutput.toJson(start))
+    target << JsonOutput.prettyPrint(JsonOutput.toJson(get()))
 }
 
 tasks.register('combinedAssets') {
@@ -265,8 +265,10 @@ tasks.register('combinedAssets') {
     outputs.dir("${generatedResourceDir}/assets/enderio/lang")
 
     doLast {
-        combineResourceJsons("${generatedResourceDir}/mcmod.info", [])
-        combineResourceJsons("${generatedResourceDir}/assets/enderio/sounds.json", [:])
+        def mcmod = []
+        combineResourceJsons("${generatedResourceDir}/mcmod.info", xs -> mcmod.addAll(xs), () -> mcmod)
+        def sounds = [:]
+        combineResourceJsons("${generatedResourceDir}/assets/enderio/sounds.json", xs -> sounds.putAll(xs), () -> sounds)
 
         modsToCombine.forEach {
             File langDir = file("${it}/${generatedResourceDir}/assets/enderio/lang")
