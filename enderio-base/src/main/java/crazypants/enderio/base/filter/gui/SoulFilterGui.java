@@ -21,6 +21,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 
@@ -77,6 +78,22 @@ public class SoulFilterGui extends AbstractFilterGui {
   public void initGui() {
     createFilterSlots();
     super.initGui();
+  }
+
+  @Override
+  protected boolean setFilterStackFromInventory(@Nonnull ItemStack stack) {
+    if (!CapturedMob.containsSoul(stack)) {
+      return false;
+    }
+
+    int targetSlot = filter.getSouls().size();
+    if (targetSlot >= filter.getSlotCount()) {
+      return false;
+    }
+
+    int beforeSize = filter.getSouls().size();
+    filter.setInventorySlotContents(targetSlot, stack);
+    return filter.getSouls().size() != beforeSize;
   }
 
   @Override

@@ -21,7 +21,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 
@@ -78,6 +80,22 @@ public class EnchantmentFilterGui extends AbstractFilterGui {
   public void initGui() {
     createFilterSlots();
     super.initGui();
+  }
+
+  @Override
+  protected boolean setFilterStackFromInventory(@Nonnull ItemStack stack) {
+    if (EnchantmentHelper.getEnchantments(stack).isEmpty()) {
+      return false;
+    }
+
+    int targetSlot = filter.getEnchantments().size();
+    if (targetSlot >= filter.getSlotCount()) {
+      return false;
+    }
+
+    int beforeSize = filter.getEnchantments().size();
+    filter.setInventorySlotContents(targetSlot, stack);
+    return filter.getEnchantments().size() != beforeSize;
   }
 
   @Override
