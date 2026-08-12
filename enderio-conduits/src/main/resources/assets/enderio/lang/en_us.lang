@@ -35,6 +35,11 @@ enderio.item_liquid_conduit_ender.tooltip.detailed.line2=Allows multiple fluids 
 
 enderio.item_item_conduit.name=Item Conduit
 
+item.item_conduit_swapper.name=Conduit Swapper
+item.item_conduit_swapper.tooltip.detailed.line1=Right-click a conduit to replace its connected line.
+item.item_conduit_swapper.tooltip.detailed.line2=Choose a compatible conduit from your inventory.
+item.item_conduit_swapper.tooltip.detailed.line3=Linked AE2 storage can also provide replacements.
+
 # Conduit Probe
 enderio.gui.conduit_probe.item.heading=Item Conduit connection to: %s
 enderio.gui.conduit_probe.item.heading.no_connections=Item Conduit has no external connections
@@ -128,6 +133,19 @@ enderio.gui.enabled=Enabled
 enderio.gui.disabled=Disabled
 
 enderio.gui.conduit.network.unloaded=Conduit partially in unloaded chunk(s)
+
+enderio.gui.conduit_swapper.title=Replace %s Conduits
+enderio.gui.conduit_swapper.original_pick=Choose a compatible conduit to replace %s conduits
+enderio.gui.conduit_swapper.original_replace=Will replace %s conduits with %s
+enderio.gui.conduit_swapper.fluid_warning=Contained fluids may be lost during the swap
+enderio.gui.conduit_swapper.can_replace=Click to replace %s conduits (%s available)
+enderio.gui.conduit_swapper.creative_replace=Click to replace %s conduits
+enderio.gui.conduit_swapper.not_enough=Need %s more conduit(s) to replace the full line
+enderio.gui.conduit_swapper.ae2_bonus=Includes %s available from linked AE2 storage
+enderio.gui.conduit_swapper.ae2_stored=Stored %s %s in linked AE2 storage
+enderio.gui.conduit_swapper.no_compatible=No compatible replacement conduits were found
+enderio.gui.conduit_swapper.source_missing=The selected conduit is no longer available
+enderio.gui.conduit_swapper.apply_failed=Could not complete the conduit swap
 
 # Advancements
 

@@ -51,6 +51,19 @@ public enum Lang implements ILang {
   GUI_CONDUIT_BUNDLE_FULL(".gui.conduit_bundle_full"),
   GUI_NETWORK_PARTIALLY_UNLOADED(".gui.conduit.network.unloaded"),
 
+  GUI_CONDUIT_SWAPPER_TITLE(".gui.conduit_swapper.title"),
+  GUI_CONDUIT_SWAPPER_ORIGINAL_PICK(".gui.conduit_swapper.original_pick"),
+  GUI_CONDUIT_SWAPPER_ORIGINAL_REPLACE(".gui.conduit_swapper.original_replace"),
+  GUI_CONDUIT_SWAPPER_FLUID_WARNING(".gui.conduit_swapper.fluid_warning"),
+  GUI_CONDUIT_SWAPPER_CAN_REPLACE(".gui.conduit_swapper.can_replace"),
+  GUI_CONDUIT_SWAPPER_CREATIVE_REPLACE(".gui.conduit_swapper.creative_replace"),
+  GUI_CONDUIT_SWAPPER_NOT_ENOUGH(".gui.conduit_swapper.not_enough"),
+  GUI_CONDUIT_SWAPPER_AE2_BONUS(".gui.conduit_swapper.ae2_bonus"),
+  GUI_CONDUIT_SWAPPER_AE2_STORED(".gui.conduit_swapper.ae2_stored"),
+  GUI_CONDUIT_SWAPPER_NO_COMPATIBLE(".gui.conduit_swapper.no_compatible"),
+  GUI_CONDUIT_SWAPPER_SOURCE_MISSING(".gui.conduit_swapper.source_missing"),
+  GUI_CONDUIT_SWAPPER_APPLY_FAILED(".gui.conduit_swapper.apply_failed"),
+
   // Conduit Probe
   GUI_CONDUIT_PROBE_ITEM_HEADING(".gui.conduit_probe.item.heading"),
   GUI_CONDUIT_PROBE_ITEM_HEADING_NO_CONNECTIONS(".gui.conduit_probe.item.heading.no_connections"),

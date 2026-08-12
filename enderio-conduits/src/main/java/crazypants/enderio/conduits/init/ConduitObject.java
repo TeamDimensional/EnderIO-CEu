@@ -22,6 +22,7 @@ import crazypants.enderio.conduits.conduit.item.ItemItemConduit;
 import crazypants.enderio.conduits.conduit.liquid.ItemLiquidConduit;
 import crazypants.enderio.conduits.conduit.power.ItemPowerConduit;
 import crazypants.enderio.conduits.conduit.redstone.ItemRedstoneConduit;
+import crazypants.enderio.conduits.item.conduitswapper.ItemConduitSwapper;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
@@ -37,6 +38,7 @@ public enum ConduitObject implements IModObjectBase {
   item_liquid_conduit(ItemLiquidConduit::create),
   item_power_conduit(ItemPowerConduit::create),
   item_redstone_conduit(ItemRedstoneConduit::create),
+  item_conduit_swapper(ItemConduitSwapper::create),
 
   // Function Upgrades
   item_extract_speed_upgrade(ItemFunctionUpgrade::createUpgrade),
