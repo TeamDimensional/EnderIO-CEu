@@ -5,6 +5,7 @@ import java.util.EnumMap;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.enderio.core.EnderCore;
 import com.enderio.core.api.common.util.ITankAccess;
 import com.enderio.core.common.util.NNList.Callback;
 
@@ -192,7 +193,18 @@ public class FluidUtil {
     if (target != null) {
       FluidStack available = target.copy();
       available.amount = maxDrain;
+      // Some mods expose a faulty FluidHandler that ignores the fluid type to be extracted. See #14
+      FluidStack simulatedDrained = handler.drain(available, false);
+      if (!simulatedDrained.isFluidEqual(available) || simulatedDrained.amount > maxDrain) {
+        return new FluidAndStackResult(ItemStack.EMPTY, null, source, target);
+      }
       drained = handler.drain(available, true);
+      if (!drained.isFluidEqual(available)) {
+        EnderCore.logger.fatal(
+          "This item exposes an incoherent FluidHandler: {}! Open a bug report at that mod's issue tracker!",
+          source.getItem().getRegistryName());
+        return new FluidAndStackResult(ItemStack.EMPTY, null, source, target);
+      }
     } else {
       drained = handler.drain(maxDrain, true);
     }

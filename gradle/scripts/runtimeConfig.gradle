@@ -10,6 +10,10 @@ def enabledDependencies = [
   "aa": false,
   "rftools": false,
   "omniwand": false,
+  "chisel": false,
+  "indy": false,
+  "profiler": false,
+  "bloodmagic": true,
   // Modules
   "endergy": true,
   "zoo": false,
@@ -57,6 +61,20 @@ def runtime_only_dependencies = [
     'curse.maven:rftools-224641:2861573': "rftools",
     'curse.maven:mcjtylib-233105:2745846': "rftools",
     'curse.maven:omniwand-923677:7476868': "omniwand",
+    'curse.maven:chisel-235279:2915375': "chisel",
+    'curse.maven:ctm-267602:2915363': "chisel",
+    'curse.maven:integrated-crafting-287357:3010631': "indy",
+    'curse.maven:integrated-tunnels-251389:3159511': "indy",
+    'curse.maven:integrated-dynamics-236307:3159505': "indy",
+    'curse.maven:common-capabilities-247007:3053017': "indy",
+    'curse.maven:cyclops-core-232758:3159497': "indy",
+    // 'curse.maven:flare-692142:7857037': "profiler",
+    // 'curse.maven:configanytime-870276:5212709': "profiler",
+    // 'curse.maven:spark-unforged-900927:6751437': "profiler",
+    // 'curse.maven:mixin-booter-419286:7049694': "profiler",
+    'curse.maven:spark-361579:3542217': "profiler",
+    'curse.maven:blood-magic-224791:2822288': "bloodmagic",
+    'curse.maven:guide-api-228832:2645992': "bloodmagic",
 ]
 
 dependencies {
