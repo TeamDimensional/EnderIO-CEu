@@ -17,9 +17,11 @@ import crazypants.enderio.base.lang.Lang;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.item.Item;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
 
 public class ModItemFilterGui extends AbstractFilterGui {
 
@@ -73,6 +75,39 @@ public class ModItemFilterGui extends AbstractFilterGui {
   public void initGui() {
     createFilterSlots();
     super.initGui();
+  }
+
+  @Override
+  protected boolean setFilterStackFromInventory(@Nonnull ItemStack stack) {
+    ResourceLocation itemName = Item.REGISTRY.getNameForObject(stack.getItem());
+    if (itemName == null) {
+      return false;
+    }
+
+    String mod = itemName.getResourceDomain();
+    int targetSlot = -1;
+    for (int slot = 0; slot < inputBounds.length; slot++) {
+      String existing = filter.getModAt(slot);
+      if (mod.equals(existing)) {
+        targetSlot = slot;
+        break;
+      }
+      if (targetSlot < 0 && existing == null) {
+        targetSlot = slot;
+      }
+    }
+
+    if (targetSlot < 0) {
+      return false;
+    }
+
+    String before = filter.getModAt(targetSlot);
+    filter.setMod(targetSlot, stack);
+    String after = filter.getModAt(targetSlot);
+    if (before == null) {
+      return after != null;
+    }
+    return !before.equals(after);
   }
 
   @Override

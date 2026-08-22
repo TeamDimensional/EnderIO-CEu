@@ -22,6 +22,8 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.Slot;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 
 public abstract class AbstractFilterGui extends GuiContainerBaseEIO<TileEntity> implements IHaveGhostTargets<AbstractFilterGui>, ICloseFilterRemoteExec.GUI {
@@ -74,6 +76,47 @@ public abstract class AbstractFilterGui extends GuiContainerBaseEIO<TileEntity> 
 
     renderCustomOptions(getGuiTop() + 13, par1, mouseX, mouseY);
     super.drawGuiContainerBackgroundLayer(par1, mouseX, mouseY);
+  }
+
+  @Override
+  protected void mouseClicked(int x, int y, int button) throws IOException {
+    // Shift-clicking a player inventory slot copies that stack into the filter without moving the real item.
+    if (button == 0 && isShiftKeyDown() && setFilterStackFromHoveredSlot()) {
+      return;
+    }
+
+    super.mouseClicked(x, y, button);
+  }
+
+  private boolean setFilterStackFromHoveredSlot() {
+    ItemStack stack = getHoveredPlayerStack();
+    if (stack.isEmpty()) {
+      return false;
+    }
+
+    if (!setFilterStackFromInventory(stack.copy())) {
+      return false;
+    }
+
+    sendFilterChange();
+    return true;
+  }
+
+  protected boolean setFilterStackFromInventory(@Nonnull ItemStack stack) {
+    return false;
+  }
+
+  private @Nonnull ItemStack getHoveredPlayerStack() {
+    if (!mc.player.inventory.getItemStack().isEmpty()) {
+      return ItemStack.EMPTY;
+    }
+
+    Slot slot = getSlotUnderMouse();
+    if (slot == null || slot.inventory != mc.player.inventory || !slot.getHasStack()) {
+      return ItemStack.EMPTY;
+    }
+
+    return slot.getStack();
   }
 
   @Override

@@ -7,6 +7,7 @@ import javax.annotation.Nonnull;
 import com.enderio.core.client.gui.button.CycleButton;
 import com.enderio.core.client.gui.button.IconButton;
 import com.enderio.core.client.gui.button.ToggleButton;
+import com.enderio.core.common.util.ItemUtil;
 
 import crazypants.enderio.base.filter.item.IItemFilter;
 import crazypants.enderio.base.filter.item.ItemFilter;
@@ -14,6 +15,7 @@ import crazypants.enderio.base.gui.IconEIO;
 import crazypants.enderio.base.lang.Lang;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 
 public class BasicItemFilterGui extends AbstractFilterGui {
@@ -113,6 +115,33 @@ public class BasicItemFilterGui extends AbstractFilterGui {
   public void initGui() {
     createFilterSlots();
     super.initGui();
+  }
+
+  @Override
+  protected boolean setFilterStackFromInventory(@Nonnull ItemStack stack) {
+    int targetSlot = -1;
+    for (int slot = 0; slot < filter.getSlotCount(); slot++) {
+      ItemStack existing = filter.getInventorySlotContents(slot);
+      if (ItemUtil.areStacksEqual(existing, stack)) {
+        targetSlot = slot;
+        break;
+      }
+      if (targetSlot < 0 && existing.isEmpty()) {
+        targetSlot = slot;
+      }
+    }
+
+    if (targetSlot < 0) {
+      return false;
+    }
+
+    ItemStack before = filter.getInventorySlotContents(targetSlot).copy();
+    filter.setInventorySlotContents(targetSlot, stack);
+    ItemStack after = filter.getInventorySlotContents(targetSlot);
+    if (filter.isLimited() && !after.isEmpty()) {
+      after.setCount(Math.min(stack.getCount(), after.getMaxStackSize() * 3));
+    }
+    return before.getCount() != after.getCount() || !ItemStack.areItemsEqual(before, after) || !ItemStack.areItemStackTagsEqual(before, after);
   }
 
   @Override

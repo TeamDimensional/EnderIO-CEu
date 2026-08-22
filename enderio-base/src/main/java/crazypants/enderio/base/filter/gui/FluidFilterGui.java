@@ -6,6 +6,7 @@ import javax.annotation.Nonnull;
 
 import com.enderio.core.client.gui.button.IconButton;
 import com.enderio.core.client.render.RenderUtil;
+import com.enderio.core.common.util.FluidUtil;
 
 import crazypants.enderio.base.filter.fluid.FluidFilter;
 import crazypants.enderio.base.filter.fluid.IFluidFilter;
@@ -14,6 +15,7 @@ import crazypants.enderio.base.lang.Lang;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.item.ItemStack;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.tileentity.TileEntity;
@@ -52,6 +54,28 @@ public class FluidFilterGui extends AbstractFilterGui {
   public void initGui() {
     createFilterSlots();
     super.initGui();
+  }
+
+  @Override
+  protected boolean setFilterStackFromInventory(@Nonnull ItemStack stack) {
+    FluidStack fluid = FluidUtil.getFluidTypeFromItem(stack);
+    if (fluid == null || fluid.getFluid() == null) {
+      return false;
+    }
+
+    int targetSlot = -1;
+    for (int slot = 0; slot < filter.getSlotCount(); slot++) {
+      FluidStack existing = filter.getFluidStackAt(slot);
+      if (existing != null && existing.isFluidEqual(fluid)) {
+        targetSlot = slot;
+        break;
+      }
+      if (targetSlot < 0 && existing == null) {
+        targetSlot = slot;
+      }
+    }
+
+    return targetSlot >= 0 && filter.setFluid(targetSlot, stack);
   }
 
   public void createFilterSlots() {
