@@ -87,6 +87,7 @@ public class TeleportEntityRenderHandler {
       vertexBuffer.pos(bb.maxX, bb.maxY, bb.maxZ).color(COL_TOP.x, COL_TOP.y, COL_TOP.z, COL_TOP.w).endVertex();
       vertexBuffer.pos(bb.maxX, bb.minY, bb.maxZ).color(COL_BOT.x, COL_BOT.y, COL_BOT.z, COL_BOT.w).endVertex();
 
+      vertexBuffer.setTranslation(0, 0, 0);
       tes.draw();
 
       GlStateManager.enableTexture2D();
