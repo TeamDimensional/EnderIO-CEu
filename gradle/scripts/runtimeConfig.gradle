@@ -14,7 +14,7 @@ def enabledDependencies = [
   "indy": false,
   "profiler": false,
   "bloodmagic": false,
-  "openblocks": true,
+  "openblocks": false,
   // Modules
   "endergy": true,
   "zoo": false,
