@@ -1,5 +1,23 @@
 # Changelog
 
+## [5.5.0] - 2026-08-22
+
+_Ender Core version: 0.5.82_
+
+### Features
+
+- Added a Conduit Swapper tool to replace conduit lines with other tiers of conduits! (Thank you Aedial!)
+
+### Tweaks
+- Items can now be shift-clicked into the conduit filters from the inventory. (Thank you Aedial!)
+- Item counts in the Limited Item Filter can now be shift-scrolled (for +10/-10 per wheel event) or ctrl-scrolled (for x2/x0.5 per wheel event).
+- Scrolling down items in the filters will no longer put them below 1 item.
+
+### Bugfixes
+
+- Tools such as Water Sigil from Blood Magic can no longer dupe arbitrary fluids in EnderIO's fluid tanks.
+- Fixed a GL state leak caused by rendering of entities inside an active Telepad.
+
 ## [5.4.2] - 2026-05-31
 
 _Ender Core version: 0.5.81_
