@@ -3,6 +3,8 @@ package com.enderio.core.client.gui;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.lwjgl.input.Keyboard;
+
 import com.enderio.core.client.gui.widget.GhostSlot;
 import com.enderio.core.client.render.RenderUtil;
 import com.enderio.core.common.util.ItemUtil;
@@ -109,7 +111,7 @@ public class GhostSlotHandler {
   }
 
   protected void ghostSlotClickedMouseWheelUp(@Nonnull GhostSlot slot, @Nonnull ItemStack handStack, @Nonnull ItemStack existingStack) {
-    if (!existingStack.isEmpty() && existingStack.getCount() < existingStack.getMaxStackSize() * slot.getStackMultiplier() && existingStack.getCount() < slot.getStackSizeLimit()) {
+    if (!existingStack.isEmpty()) {
       increaseSlot(slot, existingStack);
     }
   }
@@ -121,14 +123,39 @@ public class GhostSlotHandler {
   }
 
   // Slot interaction tools
+  // Should only be called on the clientside
+
+  private boolean isCtrlDown() {
+    return Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL);
+  }
+
+  private boolean isShiftDown() {
+    return Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
+  }
 
   protected void descreaseSlot(@Nonnull GhostSlot slot, @Nonnull ItemStack existingStack) {
-    existingStack.shrink(1);
+    int newCount = existingStack.getCount();
+    if (isCtrlDown()) {
+      newCount /= 2;
+    } else if (isShiftDown()) {
+      newCount -= 10;
+    } else {
+      newCount--;
+    }
+    existingStack.setCount(Math.max(1, newCount));
     slot.putStack(existingStack, existingStack.getCount());
   }
 
   protected void increaseSlot(@Nonnull GhostSlot slot, @Nonnull ItemStack existingStack) {
-    existingStack.grow(1);
+    int newCount = existingStack.getCount();
+    if (isCtrlDown()) {
+      newCount *= 2;
+    } else if (isShiftDown()) {
+      newCount += 10;
+    } else {
+      newCount++;
+    }
+    existingStack.setCount(Math.min(newCount, Math.min(slot.getStackSizeLimit(), existingStack.getMaxStackSize() * slot.getStackMultiplier())));
     slot.putStack(existingStack, existingStack.getCount());
   }
 
