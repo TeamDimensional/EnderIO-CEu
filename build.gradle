@@ -308,14 +308,20 @@ tasks.named('build').configure {
     dependsOn subprojects.findAll { "endercore" in it.name }.collect { it.tasks.named('build') }
 }
 
+def combineProjects = subprojects.findAll { it.name.replace(":", "") in modsToCombine }
+
 tasks.named('jar', Jar).configure {
-    dependsOn subprojects.findAll { it.name.replace(":", "") in modsToCombine }.collect { it.tasks.named('build') }
+    dependsOn combineProjects.collect { it.tasks.named('build') }
     dependsOn subprojects.findAll { "endercore" in it.name }.collect { it.tasks.named('build') }
     dependsOn tasks.named('combinedAssets')
     from(file(generatedResourceDir))
     from {
-        subprojects.findAll { it.name.replace(":", "") in modsToCombine }.collect { subproject ->
-            subproject.sourceSets.main.output + subproject.configurations.embed.collect { zipTree(it) } }
+        combineProjects.collect { subproject ->
+            // Use Project.files(...) instead of the Groovy `+` operator so the
+            // SourceSetOutput stays `Buildable`: Gradle then tracks the dependency
+            // on each submodule's compile/processResources tasks.
+            subproject.files(subproject.sourceSets.main.output, subproject.configurations.embed.collect { zipTree(it) })
+        }
     } {
         exclude '**/mcmod.info'
         exclude '**/enderio/sounds.json'
@@ -323,6 +329,13 @@ tasks.named('jar', Jar).configure {
         exclude 'META-INF/*'
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+// The combined dev jar is assembled from every submodule's output. Force reobfJar
+// to always run so the released jar is never left in deobfuscated (MCP) form when
+// the combine step produces a fresh dev jar.
+tasks.named('reobfJar') {
+    outputs.upToDateWhen { false }
 }
 
 apply from: 'gradle/scripts/publishing.gradle'

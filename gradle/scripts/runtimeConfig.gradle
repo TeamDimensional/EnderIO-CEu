@@ -13,7 +13,8 @@ def enabledDependencies = [
   "chisel": false,
   "indy": false,
   "profiler": false,
-  "bloodmagic": true,
+  "bloodmagic": false,
+  "openblocks": true,
   // Modules
   "endergy": true,
   "zoo": false,
@@ -75,6 +76,7 @@ def runtime_only_dependencies = [
     'curse.maven:spark-361579:3542217': "profiler",
     'curse.maven:blood-magic-224791:2822288': "bloodmagic",
     'curse.maven:guide-api-228832:2645992': "bloodmagic",
+    'curse.maven:openblocks-reopened-1342654:7294306': "openblocks",
 ]
 
 dependencies {
