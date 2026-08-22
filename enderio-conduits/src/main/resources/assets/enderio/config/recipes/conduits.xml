@@ -170,6 +170,17 @@ XML editor will display that as tooltips when editing this file.
     </crafting>
   </recipe>
 
+  <recipe name="Conduit Swapper" required="true">
+    <crafting>
+      <grid>
+        <item name="CONDUIT_BINDER" /><item name="CONDUIT_BINDER" /><item name="CONDUIT_BINDER" />
+        <item name="CONDUIT_BINDER" /><item name="enderio:item_yeta_wrench" /><item name="CONDUIT_BINDER" />
+        <item name="CONDUIT_BINDER" /><item name="CONDUIT_BINDER" /><item name="CONDUIT_BINDER" />
+      </grid>
+      <output name="enderio:item_conduit_swapper" />
+    </crafting>
+  </recipe>
+
   <recipe name="Upgrade, Speed" required="true">
     <crafting>
       <grid>

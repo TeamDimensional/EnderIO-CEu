@@ -29,6 +29,7 @@ XML editor will display that as tooltips when editing this file.
 
       <item name="enderio:item_conduit_probe:0" show="true" />
       <item name="enderio:item_yeta_wrench:0" show="true" />
+      <item name="enderio:item_conduit_swapper:0" show="true" />
 
       <item name="enderio:item_basic_item_filter:0" show="true" />
       <item name="enderio:item_advanced_item_filter:0" show="true" />
