@@ -35,6 +35,11 @@ enderio.item_liquid_conduit_ender.tooltip.detailed.line2=能够同时传输多�
 
 enderio.item_item_conduit.name=物品导管
 
+item.item_conduit_swapper.name=导管置换器
+item.item_conduit_swapper.tooltip.detailed.line1=右键点击导管，替换其连接的整条线路。
+item.item_conduit_swapper.tooltip.detailed.line2=从物品栏中选择一项兼容的导管。
+item.item_conduit_swapper.tooltip.detailed.line3=也可由链接的AE2存储提供待替换导管。
+
 # Conduit Probe
 enderio.gui.conduit_probe.item.heading=物品导管连接到：%s
 enderio.gui.conduit_probe.item.heading.no_connections=物品导管无外部连接
@@ -128,6 +133,19 @@ enderio.gui.enabled=已启用
 enderio.gui.disabled=已禁用
 
 enderio.gui.conduit.network.unloaded=部分导管处于未加载的区块
+
+enderio.gui.conduit_swapper.title=替换%s个导管
+enderio.gui.conduit_swapper.original_pick=选择一项兼容的导管来替换%s个导管
+enderio.gui.conduit_swapper.original_replace=将把%s个导管替换为%s
+enderio.gui.conduit_swapper.fluid_warning=置换过程中，导管内的流体可能会丢失
+enderio.gui.conduit_swapper.can_replace=点击以替换%s个导管（可用%s个）
+enderio.gui.conduit_swapper.creative_replace=点击以替换%s个导管
+enderio.gui.conduit_swapper.not_enough=还需要%s个导管才能完成整条线路的替换
+enderio.gui.conduit_swapper.ae2_bonus=其中有%s个来自链接的AE2存储
+enderio.gui.conduit_swapper.ae2_stored=链接的AE2存储中存储了%s个%s
+enderio.gui.conduit_swapper.no_compatible=未找到兼容的替换导管
+enderio.gui.conduit_swapper.source_missing=所选导管不再可用
+enderio.gui.conduit_swapper.apply_failed=无法完成导管置换
 
 # Advancements
 
