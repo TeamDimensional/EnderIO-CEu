@@ -195,7 +195,7 @@ public class FluidUtil {
       available.amount = maxDrain;
       // Some mods expose a faulty FluidHandler that ignores the fluid type to be extracted. See #14
       FluidStack simulatedDrained = handler.drain(available, false);
-      if (!simulatedDrained.isFluidEqual(available) || simulatedDrained.amount > maxDrain) {
+      if (simulatedDrained == null || !simulatedDrained.isFluidEqual(available) || simulatedDrained.amount > maxDrain) {
         return new FluidAndStackResult(ItemStack.EMPTY, null, source, target);
       }
       drained = handler.drain(available, true);
