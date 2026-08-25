@@ -54,7 +54,6 @@ public class VatMachineRecipe extends AbstractMachineRecipe {
     return result;
   }
 
-  // TODO: Check if this is really needed or if the super impl works as well
   @Override
   public @Nonnull ResultStack[] getCompletedResult(long nextSeed, float chanceMultiplier, @Nonnull NNList<MachineRecipeInput> inputs) {
     if (inputs.size() <= 0) {
