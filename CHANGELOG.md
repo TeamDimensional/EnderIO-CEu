@@ -1,5 +1,18 @@
 # Changelog
 
+## [5.5.1] - 2026-08-25
+
+_Ender Core version: 0.5.83_
+
+### Tweaks
+
+- Added simplified chinese translations for Conduit Swapper (thank you ZHAY!)
+
+### Bugfixes
+
+- Making Hootch in Vat will no longer always output 70 mb of Hootch, disregarding input multipliers
+- Fixed a crash when filling an already full tank with a bucket
+
 ## [5.5.0] - 2026-08-22
 
 _Ender Core version: 0.5.82_
